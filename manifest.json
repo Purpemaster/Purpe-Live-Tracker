@@ -1,0 +1,8 @@
+{
+  "name": "Purple Pepe Tracker",
+  "short_name": "PepeTracker",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#8e44ad"
+}
