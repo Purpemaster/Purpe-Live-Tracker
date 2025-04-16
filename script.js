@@ -7,7 +7,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${heliusAPI}`;
 
   try {
-    const response = await fetch(endpoint);
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json'
+      }
+    });
     const data = await response.json();
 
     const lamports = data.nativeBalance?.lamports ?? 0;
@@ -24,17 +29,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const totalUSD = solUSD + tokenUSD;
     const percent = Math.min((totalUSD / goal) * 100, 100);
 
-    // Fortschrittsbalken füllen
     document.getElementById("progressFill").style.width = `${percent}%`;
 
-    // Werte anzeigen
     document.getElementById("amountStart").innerText = `$${totalUSD.toLocaleString(undefined, {
       maximumFractionDigits: 2
     })}`;
-
     document.getElementById("amountGoal").innerText = `$${goal.toLocaleString()}`;
 
-    // Debug-Ausgabe direkt auf der Seite
+    // Debug-Info sichtbar anzeigen
     const debugInfo = `
       <div style="background: rgba(0,0,0,0.6); color: #0ff; padding: 10px; margin-top: 20px; font-size: 12px; font-family: monospace;">
         <strong>DEBUG INFO:</strong><br>
