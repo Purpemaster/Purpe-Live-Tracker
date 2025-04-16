@@ -1,23 +1,32 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const wallet = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-  const apiKey = "5a9f9c0b-5695-464f-8a8e-44dcf3524fe7";
-  const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${apiKey}`;
+  const heliusAPI = "5a9f9c0b-5695-464f-8a8e-44dcf3524fe7";
+  const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${heliusAPI}`;
+  const goal = 20000;
 
   try {
     const response = await fetch(endpoint);
     const data = await response.json();
 
     const lamports = data.nativeBalance?.lamports || 0;
-    const sol = lamports / 1_000_000_000;
-    const usd = sol * 100; // Simple SOL to USD estimation
-    const goal = 20000;
-    const percent = Math.min((usd / goal) * 100, 100);
+    const sol = lamports / 1000000000;
+    const solUSD = sol * 132.59;
 
-    document.getElementById("currentAmount").innerText = `$${usd.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    let tokenUSD = 0;
+    if (Array.isArray(data.tokens)) {
+      tokenUSD = data.tokens.reduce((sum, token) => {
+        return sum + (token?.value?.usd || 0);
+      }, 0);
+    }
+
+    const totalUSD = solUSD + tokenUSD;
+    const percent = Math.min((totalUSD / goal) * 100, 100);
+
     document.getElementById("progressFill").style.width = `${percent}%`;
-
+    document.getElementById("amountStart").textContent = `$${Math.round(totalUSD).toLocaleString()}`;
+    document.getElementById("amountGoal").textContent = `$${goal.toLocaleString()}`;
   } catch (error) {
-    console.error("Error fetching wallet balance:", error);
-    document.getElementById("currentAmount").innerText = "Live Error";
+    console.error("Fehler beim Abrufen der Wallet-Daten:", error);
+    document.getElementById("amountStart").textContent = "Error";
   }
 });
