@@ -1,89 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+
 body {
   margin: 0;
   padding: 0;
   font-family: 'Orbitron', sans-serif;
-  overflow: hidden;
-  background-color: black;
-}
-
-.background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url('pepe_background.png');
+  background: url('pepe_background.png') no-repeat center center fixed;
   background-size: cover;
-  background-position: center;
-  z-index: -1;
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
+  color: white;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
 .tracker {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 40px;
   width: 90%;
   max-width: 400px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 20px;
-  padding: 20px;
   text-align: center;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-  color: white;
 }
 
-.tracker h2 {
-  font-size: 22px;
+h1 {
+  font-size: 20px;
+  font-weight: 700;
   margin-bottom: 10px;
-  text-shadow: 0 0 10px #8e44ad;
+  animation: float 3s ease-in-out infinite;
 }
 
 .progress-bar {
-  background-color: #222;
+  width: 100%;
+  background-color: #333;
   border-radius: 20px;
   overflow: hidden;
-  height: 25px;
+  height: 20px;
+  margin-bottom: 10px;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(to right, #00f2ff, #8e44ad);
+  background: linear-gradient(to right, #00f2ff, #d400ff);
   width: 0%;
-  transition: width 0.5s ease-in-out;
+  transition: width 1s ease-in-out;
 }
 
 .amount {
-  margin-top: 10px;
-  font-size: 16px;
-  text-shadow: 0 0 5px black;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
 }
 
-.info-text {
-  position: absolute;
-  top: 52%;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #fff;
-  text-align: center;
-  padding: 10px 20px;
+.text {
   font-size: 14px;
-  text-shadow: 0 0 10px #000;
+  font-weight: 500;
   animation: pulse 2s infinite;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 15px;
-  max-width: 90%;
+  line-height: 1.4;
 }
 
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
