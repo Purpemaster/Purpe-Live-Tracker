@@ -22,11 +22,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const totalUSD = solUSD + tokenUSD;
     const percent = Math.min((totalUSD / goal) * 100, 100);
 
-    // Live Balken füllen
     document.getElementById("progressFill").style.width = `${percent}%`;
-
-    // Zahlen aktualisieren
-    document.getElementById("amountStart").innerText = `$${totalUSD.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+    document.getElementById("amountStart").innerText = `$${totalUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
     document.getElementById("amountGoal").innerText = `$${goal.toLocaleString()}`;
   } catch (error) {
     console.error("Fehler beim Abrufen der Wallet-Daten:", error);
