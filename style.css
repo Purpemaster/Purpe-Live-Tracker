@@ -1,59 +1,83 @@
-body {
+body, html {
   margin: 0;
+  padding: 0;
   font-family: 'Orbitron', sans-serif;
-  background: url('C2BAF1F0-26F1-44A7-AF48-F5612E9435B3.png') no-repeat center center fixed;
-  background-size: cover;
   color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  flex-direction: column;
+  text-align: center;
+  height: 100%;
+  overflow: hidden;
+}
+
+.background {
+  background: url('pepe_background.png') no-repeat center center fixed;
+  background-size: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: float 10s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .container {
-  text-align: center;
-  background-color: rgba(0, 0, 0, 0.6);
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px purple;
-}
-
-.progress-bar {
-  width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
   max-width: 600px;
-  background-color: #555;
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 20px auto;
-  height: 30px;
 }
 
-.progress-fill {
-  height: 100%;
-  width: 0;
-  background: linear-gradient(to right, #a000ff, #ff00d4);
-  transition: width 1s ease-in-out;
-}
-
-.progress-labels {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 20px;
-  font-size: 18px;
+.title {
+  font-size: 2em;
+  margin-bottom: 20px;
   font-weight: bold;
 }
 
-.message {
-  margin-top: 20px;
-  font-size: 18px;
-  color: #fff;
-  text-shadow: 0 0 10px purple;
-  animation: pulse 2s infinite;
+.progress-bar {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  height: 20px;
+  margin-bottom: 10px;
 }
 
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+.progress-fill {
+  background: linear-gradient(90deg, #00f0ff, #a000f0);
+  height: 100%;
+  width: 0%;
+  transition: width 1s ease-in-out;
+}
+
+.amounts {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 20px;
+  font-size: 1.1em;
+}
+
+.info-box {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 0.95em;
+  line-height: 1.5;
+  animation: pulseText 2s infinite;
+  box-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+@keyframes pulseText {
+  0%, 100% { text-shadow: 0 0 10px #fff; }
+  50% { text-shadow: 0 0 20px #fff; }
 }
