@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   overflow: hidden;
   background-color: black;
 }
@@ -12,7 +12,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url('pepe_background.png'); /* <- Hier dein Pepe Bild */
+  background-image: url('pepe_background.png');
   background-size: cover;
   background-position: center;
   z-index: -1;
@@ -25,37 +25,9 @@ body {
   100% { transform: translateY(0); }
 }
 
-.hero-text {
-  position: absolute;
-  top: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  color: #ffffff;
-  text-shadow: 0 0 10px #8e44ad;
-  animation: fadeIn 2s ease-in-out;
-  max-width: 90%;
-}
-
-.hero-text h1 {
-  font-size: 24px;
-  margin-bottom: 10px;
-  line-height: 1.4;
-}
-
-.hero-text p {
-  font-size: 16px;
-  color: #eee;
-}
-
-@keyframes fadeIn {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
 .tracker {
   position: absolute;
-  top: 55%;
+  top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90%;
@@ -64,13 +36,14 @@ body {
   border-radius: 20px;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .tracker h2 {
-  color: white;
-  font-size: 20px;
+  font-size: 22px;
   margin-bottom: 10px;
+  text-shadow: 0 0 10px #8e44ad;
 }
 
 .progress-bar {
@@ -88,8 +61,29 @@ body {
 }
 
 .amount {
-  color: white;
   margin-top: 10px;
   font-size: 16px;
   text-shadow: 0 0 5px black;
+}
+
+.info-text {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  text-shadow: 0 0 10px #000;
+  animation: pulse 2s infinite;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+  max-width: 90%;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
 }
