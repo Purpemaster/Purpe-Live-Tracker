@@ -1,41 +1,41 @@
-document.addEventListener("DOMContentLoaded", async () => {
-    const wallet = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const heliusAPI = "2e046356-0f0c-4880-93cc-6d5467e81c73"; // Dein aktiver Key
-    const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${heliusAPI}`;
-    const goal = 20000;
+const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+const apiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+const goalUSD = 20000;
 
-    try {
-        const response = await fetch(endpoint);
-        const data = await response.json();
+async function fetchWalletBalance() {
+  try {
+    const response = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${apiKey}`);
+    const data = await response.json();
 
-        const lamports = data.nativeBalance?.lamports || 0;
-        const sol = lamports / 1_000_000_000;
-        const solUSD = sol * 132.59; // Aktueller Preis kann ggf. extern bezogen werden
+    let solUSD = 0;
+    let tokenUSD = 0;
 
-        let tokenUSD = 0;
-        if (Array.isArray(data.tokens)) {
-            tokenUSD = data.tokens.reduce((sum, token) => {
-                return sum + (token?.value?.usd || 0);
-            }, 0);
-        }
-
-        const totalUSD = solUSD + tokenUSD;
-        const percent = Math.min((totalUSD / goal) * 100, 100);
-
-        // Werte anzeigen
-        document.getElementById("progressFill").style.width = `${percent}%`;
-        document.getElementById("amountStart").textContent = `$${totalUSD.toFixed(2)}`;
-        document.getElementById("amountGoal").textContent = `$${goal.toLocaleString()}`;
-
-        console.log("Wallet Balance:", {
-            solUSD: solUSD.toFixed(2),
-            tokenUSD: tokenUSD.toFixed(2),
-            totalUSD: totalUSD.toFixed(2),
-            percent: percent.toFixed(2) + "%"
-        });
-
-    } catch (error) {
-        console.error("Fehler beim Abrufen der Wallet-Daten:", error);
-        document.getElementById("amountStart").textContent = "$0";
+    if (data.nativeBalance && data.nativeBalance.usd) {
+      solUSD = data.nativeBalance.usd;
     }
-});
+
+    if (data.tokens && Array.isArray(data.tokens)) {
+      data.tokens.forEach(token => {
+        const symbol = token?.tokenInfo?.symbol?.toUpperCase() || "";
+        if (["USDC", "PURPE", "PURPLE", "PAYPALUSD"].includes(symbol)) {
+          tokenUSD += token.amount * (token.tokenInfo?.price || 0);
+        }
+      });
+    }
+
+    const totalUSD = solUSD + tokenUSD;
+    const percent = Math.min((totalUSD / goalUSD) * 100, 100);
+
+    // Update UI
+    document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
+    document.getElementById("progress-bar").style.width = `${percent}%`;
+
+    console.log("Wallet Balance:", { solUSD, tokenUSD, totalUSD, percent });
+  } catch (error) {
+    console.error("Error fetching wallet balance:", error);
+  }
+}
+
+// Run on load and refresh every 60 seconds
+fetchWalletBalance();
+setInterval(fetchWalletBalance, 60000);
