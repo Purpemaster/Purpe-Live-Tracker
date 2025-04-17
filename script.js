@@ -1,32 +1,31 @@
-const heliusKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-const goalUSD = 20000;
+document.addEventListener("DOMContentLoaded", async () => {
+  const wallet = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+  const heliusAPI = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+  const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${heliusAPI}`;
+  const goal = 20000;
 
-async function getBalance() {
   try {
-    const response = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusKey}`);
+    const response = await fetch(endpoint);
     const data = await response.json();
 
-    let totalUSD = 0;
+    const lamports = data.nativeBalance?.lamports || 0;
+    const sol = lamports / 1000000000;
+    const solUSD = sol * 132.59;
 
-    data.tokens.forEach(token => {
-      const symbol = token.tokenSymbol;
-      const amount = token.amount / Math.pow(10, token.decimals || 0);
+    let tokenUSD = 0;
+    if (Array.isArray(data.tokens)) {
+      tokenUSD = data.tokens.reduce((sum, token) => {
+        return sum + (token?.value?.usd || 0);
+      }, 0);
+    }
 
-      if (symbol === "SOL") totalUSD += amount * 150;
-      if (symbol === "USDC") totalUSD += amount;
-      if (symbol.toUpperCase().includes("PURPE")) totalUSD += amount * 0.0008;
-    });
+    const totalUSD = solUSD + tokenUSD;
+    const percent = Math.min((totalUSD / goal) * 100, 100);
 
-    totalUSD = Math.round(totalUSD);
-
-    document.getElementById("wallet-usd").innerText = `$${totalUSD}`;
-    const percent = Math.min((totalUSD / goalUSD) * 100, 100);
-    document.getElementById("progress-fill").style.width = `${percent}%`;
-  } catch (err) {
-    console.error("Fehler beim Abrufen der Wallet-Daten", err);
+    document.getElementById("progressFill").style.width = `${percent}%`;
+    document.getElementById("amountStart").textContent = `$${Math.round(totalUSD).toLocaleString()}`;
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Wallet-Daten:", error);
+    document.getElementById("amountStart").textContent = "Live Data Error";
   }
-}
-
-getBalance();
-setInterval(getBalance, 60000); // alle 60 Sekunden aktualisieren
+});
