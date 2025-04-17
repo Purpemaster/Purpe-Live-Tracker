@@ -2,25 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Purple Pepe Donation Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Purple Pepe Donation Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div class="background"></div>
-  <div class="container">
-    <h1 class="title">Live Donation Tracker</h1>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <div class="amounts">
-      <span id="amountStart">$0</span>
-      <span>$20,000</span>
-    </div>
-    <div class="info-box pulse">
-      <p><strong>Purple Pepe is becoming a legend – this wallet is the fuel.</strong></p>
-      <p>Your donation powers our journey to the world’s biggest exchanges.</p>
+  <div class="overlay">
+    <div class="tracker">
+      <div class="goal-labels">
+        <span id="current-balance">$0</span>
+        <span>$20,000</span>
+      </div>
+      <div class="progress-bar">
+        <div id="progress" class="progress-fill"></div>
+      </div>
+      <p class="donation-text pulsate">
+        Purple Pepe is becoming a legend – this wallet is the fuel.  
+        Your donation powers our journey to the world’s biggest exchanges.
+      </p>
     </div>
   </div>
   <script src="script.js"></script>
