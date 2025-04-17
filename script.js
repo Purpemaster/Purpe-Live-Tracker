@@ -1,31 +1,31 @@
-const apiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const wallet = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-const goalUSD = 20000;
+document.addEventListener("DOMContentLoaded", async () => {
+  const wallet = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+  const heliusAPI = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+  const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${heliusAPI}`;
+  const goal = 20000;
 
-async function fetchBalance() {
-  const url = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${apiKey}`;
   try {
-    const response = await fetch(url);
+    const response = await fetch(endpoint);
     const data = await response.json();
 
-    let totalUSD = 0;
+    const lamports = data.nativeBalance?.lamports || 0;
+    const sol = lamports / 1000000000;
+    const solUSD = sol * 132.59;
 
-    data.tokens.forEach(token => {
-      if (token.price_info?.usd) {
-        totalUSD += (token.amount / 10 ** token.decimals) * token.price_info.usd;
-      }
-    });
+    let tokenUSD = 0;
+    if (Array.isArray(data.tokens)) {
+      tokenUSD = data.tokens.reduce((sum, token) => {
+        return sum + (token?.value?.usd || 0);
+      }, 0);
+    }
 
-    const percentage = Math.min((totalUSD / goalUSD) * 100, 100).toFixed(2);
+    const totalUSD = solUSD + tokenUSD;
+    const percent = Math.min((totalUSD / goal) * 100, 100);
 
-    document.getElementById("fillBar").style.width = `${percentage}%`;
-    document.getElementById("currentAmount").textContent = `$${totalUSD.toFixed(2)}`;
-
-    console.log("Wallet Total:", totalUSD);
-  } catch (err) {
-    console.error("API error:", err);
+    document.getElementById("progressFill").style.width = `${percent}%`;
+    document.getElementById("amountStart").textContent = `$${Math.round(totalUSD).toLocaleString()}`;
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Wallet-Daten:", error);
+    document.getElementById("amountStart").textContent = "Live Data Error";
   }
-}
-
-fetchBalance();
-setInterval(fetchBalance, 60000); // alle 60 Sek. neu abrufen
+});
