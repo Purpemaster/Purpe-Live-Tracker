@@ -1,31 +1,32 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const wallet = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-  const heliusAPI = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-  const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${heliusAPI}`;
-  const goal = 20000;
+const balanceEl = document.getElementById("balance");
+const progressEl = document.getElementById("progress");
 
+const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+const GOAL = 20000;
+
+async function fetchBalance() {
   try {
-    const response = await fetch(endpoint);
-    const data = await response.json();
+    const res = await fetch(`https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`);
+    const json = await res.json();
 
-    const lamports = data.nativeBalance?.lamports || 0;
-    const sol = lamports / 1000000000;
-    const solUSD = sol * 132.59;
+    let totalUSD = 0;
 
-    let tokenUSD = 0;
-    if (Array.isArray(data.tokens)) {
-      tokenUSD = data.tokens.reduce((sum, token) => {
-        return sum + (token?.value?.usd || 0);
-      }, 0);
-    }
+    json.tokens.forEach((token) => {
+      if (["USDC", "SOL", "PURPE"].includes(token.tokenSymbol) && token.amountUSD) {
+        totalUSD += parseFloat(token.amountUSD);
+      }
+    });
 
-    const totalUSD = solUSD + tokenUSD;
-    const percent = Math.min((totalUSD / goal) * 100, 100);
+    totalUSD = Math.round(totalUSD);
+    balanceEl.textContent = `$${totalUSD.toLocaleString()}`;
 
-    document.getElementById("progressFill").style.width = `${percent}%`;
-    document.getElementById("amountStart").textContent = `$${Math.round(totalUSD).toLocaleString()}`;
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Wallet-Daten:", error);
-    document.getElementById("amountStart").textContent = "Live Data Error";
+    const percent = Math.min((totalUSD / GOAL) * 100, 100);
+    progressEl.style.width = `${percent}%`;
+  } catch (e) {
+    console.error("Error loading balance:", e);
   }
-});
+}
+
+fetchBalance();
+setInterval(fetchBalance, 60000); // aktualisiere alle 60 Sekunden
