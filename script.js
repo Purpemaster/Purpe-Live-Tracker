@@ -1,42 +1,36 @@
-const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-const GOAL = 20000; // Ziel in USD
+const HELIUS_API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+const WALLET_ADDRESS = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+const GOAL = 20000;
 
-async function fetchWalletBalance() {
-  const response = await fetch(`https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`);
-  const data = await response.json();
+async function fetchBalance() {
+  const url = `https://api.helius.xyz/v0/addresses/${WALLET_ADDRESS}/balances?api-key=${HELIUS_API_KEY}`;
 
-  let totalUSD = 0;
-  let solUSD = 0;
-  let tokenUSD = 0;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
 
-  data.tokens.forEach((token) => {
-    const symbol = token.tokenInfo?.symbol || "";
-    const price = token.tokenInfo?.price || 0;
-    const amount = token.amount || 0;
-    const decimals = token.tokenInfo?.decimals || 0;
+    const tokens = data.tokens || [];
 
-    const balance = amount / Math.pow(10, decimals);
-    const value = balance * price;
+    let totalUSD = 0;
 
-    if (symbol === "SOL") {
-      solUSD += value;
-    } else {
-      tokenUSD += value;
-    }
-  });
+    tokens.forEach(token => {
+      if (token.amount && token.price_info?.price_per_token) {
+        const tokenUSD = (token.amount / (10 ** token.decimals)) * token.price_info.price_per_token;
+        totalUSD += tokenUSD;
+      }
+    });
 
-  totalUSD = solUSD + tokenUSD;
-  const percent = Math.min((totalUSD / GOAL) * 100, 100);
+    const progressPercent = Math.min((totalUSD / GOAL) * 100, 100).toFixed(1);
 
-  // Aktualisiere die UI
-  document.getElementById("wallet-amount").innerText = `$${totalUSD.toFixed(2)}`;
-  document.getElementById("progress-bar-fill").style.width = `${percent}%`;
+    document.getElementById("usd-left").textContent = `$${totalUSD.toFixed(2)}`;
+    document.getElementById("usd-right").textContent = `$${GOAL.toLocaleString()}`;
+    document.getElementById("progress-fill").style.width = `${progressPercent}%`;
 
-  // Konsolenausgabe zur Kontrolle
-  console.log("Wallet Balance:", { solUSD, tokenUSD, totalUSD, percent });
+    console.log("Gesamtbetrag:", totalUSD.toFixed(2), "USD");
+
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Wallet-Balance:", error);
+  }
 }
 
-// Aufruf bei Seitenstart
-fetchWalletBalance();
-setInterval(fetchWalletBalance, 30000); // Alle 30 Sekunden aktualisieren
+fetchBalance();
