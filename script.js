@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const lamports = data.nativeBalance?.lamports || 0;
     const sol = lamports / 1000000000;
-    const solUSD = sol * 132.59;
+    const solUSD = sol * 132.59; // Aktueller SOL/USD-Kurs (anpassbar)
 
     let tokenUSD = 0;
     if (Array.isArray(data.tokens)) {
@@ -23,11 +23,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const percent = Math.min((totalUSD / goal) * 100, 100);
 
     document.getElementById("progressFill").style.width = `${percent}%`;
-    document.getElementById("amountStart").innerText = `$${totalUSD.toLocaleString(undefined, {
-      maximumFractionDigits: 2,
-    })}`;
+    document.getElementById("amountStart").textContent = `$${Math.round(totalUSD).toLocaleString()}`;
+    document.getElementById("amountGoal").textContent = `$${goal.toLocaleString()}`;
+
+    console.log("Wallet Balance:", {
+      solUSD: solUSD.toFixed(2),
+      tokenUSD: tokenUSD.toFixed(2),
+      totalUSD: totalUSD.toFixed(2),
+      percent: percent.toFixed(2),
+    });
+
   } catch (error) {
     console.error("Fehler beim Abrufen der Wallet-Daten:", error);
-    document.getElementById("amountStart").innerText = "Live Data Error";
+    document.getElementById("amountStart").textContent = "Error";
   }
 });
