@@ -1,42 +1,33 @@
-const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-const goalUSD = 20000;
+document.addEventListener("DOMContentLoaded", async () => {
+  const wallet = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+  const heliusAPI = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+  const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${heliusAPI}`;
+  const goal = 20000;
 
-async function fetchBalanceAndPrice() {
   try {
-    // 1. Solana Balance
-    const solanaResponse = await fetch("https://api.mainnet-beta.solana.com", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getBalance",
-        params: [walletAddress]
-      })
-    });
-    const solData = await solanaResponse.json();
-    const lamports = solData.result.value;
-    const sol = lamports / 1e9;
+    const response = await fetch(endpoint);
+    const data = await response.json();
 
-    // 2. CoinGecko USD Preis für SOL & USDC
-    const cgResponse = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana,tether,purple-pepe&vs_currencies=usd");
-    const prices = await cgResponse.json();
+    const lamports = data.nativeBalance?.lamports || 0;
+    const sol = lamports / 1000000000;
+    const solUSD = sol * 132.59;
 
-    const solUSD = sol * (prices.solana?.usd || 0);
-    const usdcUSD = 0; // USDC = stablecoin, wird ignoriert wenn nicht extra getrackt
-    const pepeUSD = 0; // Optional: wenn du den Token als ID hast, kann man ihn dynamisch holen
+    let tokenUSD = 0;
+    if (Array.isArray(data.tokens)) {
+      tokenUSD = data.tokens.reduce((sum, token) => {
+        return sum + (token?.value?.usd || 0);
+      }, 0);
+    }
 
-    const totalUSD = solUSD + usdcUSD + pepeUSD;
-    const percent = Math.min((totalUSD / goalUSD) * 100, 100);
+    const totalUSD = solUSD + tokenUSD;
+    const percent = Math.min((totalUSD / goal) * 100, 100);
 
-    // Update DOM
-    document.getElementById("current-usd").innerText = `$${totalUSD.toFixed(2)}`;
-    document.getElementById("progress-bar").style.width = `${percent}%`;
-  } catch (err) {
-    console.error("Fehler beim Laden:", err);
+    document.getElementById("progressFill").style.width = `${percent}%`;
+    document.getElementById("amountStart").textContent = `$${Math.round(totalUSD).toLocaleString()}`;
+    document.getElementById("amountGoal").textContent = `$${goal.toLocaleString()}`;
+
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Wallet-Daten:", error);
+    document.getElementById("amountStart").textContent = "Error";
   }
-}
-
-// Alle 20 Sekunden aktualisieren
-fetchBalanceAndPrice();
-setInterval(fetchBalanceAndPrice, 20000);
+});
