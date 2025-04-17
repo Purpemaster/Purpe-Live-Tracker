@@ -2,58 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Purple Pepe Donation Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <div class="background"></div>
   <div class="container">
-    <div class="tracker-box">
-      <div class="wallet-value" id="walletValue">$0</div>
-      <div class="progress-bar">
-        <div class="fill" id="progressFill"></div>
-      </div>
-      <div class="goal-labels">
-        <span>$0</span>
-        <span>$20,000</span>
-      </div>
-      <p class="wallet-text">
-        Purple Pepe is becoming a legend – this wallet is the fuel.<br />
-        Your donation powers our journey to the world’s biggest exchanges.
-      </p>
+    <h1 class="title">Live Donation Tracker</h1>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="amounts">
+      <span id="amountStart">$0</span>
+      <span id="amountGoal">$20,000</span>
+    </div>
+    <div class="info-box pulse">
+      <p><strong>Purple Pepe is becoming a legend – this wallet is the fuel.</strong></p>
+      <p>Your donation powers our journey to the world’s biggest exchanges.</p>
     </div>
   </div>
-
-  <script>
-    const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-    const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const GOAL = 20000;
-
-    async function fetchBalance() {
-      const url = `https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        let totalUSD = 0;
-
-        data.tokens.forEach(token => {
-          if (token.priceInfo?.usd) {
-            totalUSD += (token.amount / Math.pow(10, token.decimals)) * token.priceInfo.usd;
-          }
-        });
-
-        const percent = Math.min((totalUSD / GOAL) * 100, 100);
-        document.getElementById("walletValue").innerText = `$${Math.floor(totalUSD).toLocaleString()}`;
-        document.getElementById("progressFill").style.width = `${percent}%`;
-
-      } catch (err) {
-        console.error("Error fetching wallet:", err);
-      }
-    }
-
-    fetchBalance();
-    setInterval(fetchBalance, 60000); // jede Minute aktualisieren
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
