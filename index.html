@@ -2,111 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Purple Pepe Donation Wallet</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      background: url('dein-bild.png') no-repeat center center fixed;
-      background-size: cover;
-      color: #fff;
-      text-align: center;
-    }
-
-    .container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      max-width: 800px;
-    }
-
-    .title {
-      font-size: 2em;
-      font-weight: bold;
-      text-shadow: 0 0 15px #fff;
-      margin-bottom: 20px;
-      animation: pulse 2s infinite;
-    }
-
-    .progress-wrapper {
-      background: rgba(255,255,255,0.2);
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 20px 0;
-    }
-
-    .progress-bar {
-      height: 30px;
-      background: linear-gradient(to right, #ff00ff, #00ffff);
-      width: 0%;
-      transition: width 1s ease;
-    }
-
-    .amounts {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 5px;
-      font-size: 1.2em;
-      font-weight: bold;
-      text-shadow: 0 0 5px #000;
-    }
-
-    .footer-text {
-      margin-top: 30px;
-      font-size: 1.2em;
-      text-shadow: 0 0 10px #000;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Purple Pepe Donation Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <div class="background"></div>
   <div class="container">
-    <div class="title">Purple Pepe Donation Wallet</div>
-    <div class="progress-wrapper">
-      <div class="progress-bar" id="progressBar"></div>
+    <h1 class="title">Live Donation Tracker</h1>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
     </div>
+
     <div class="amounts">
-      <div id="currentAmount">$0</div>
-      <div>$20,000</div>
+      <span id="amountStart">$0</span>
+      <span id="amountGoal">$20,000</span>
     </div>
-    <div class="footer-text">
-      Purple Pepe is becoming a legend – this wallet is the fuel.<br>
-      Your donation powers our journey to the world’s biggest exchanges.
+
+    <div class="info-box pulse">
+      <p><strong>Purple Pepe is becoming a legend – this wallet is the fuel.</strong></p>
+      <p>Your donation powers our journey to the world’s biggest exchanges.</p>
     </div>
   </div>
 
-  <script>
-    const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-    const GOAL = 20000;
-
-    async function fetchTotalBalance() {
-      const res = await fetch(`https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`);
-      const data = await res.json();
-      const coins = data.tokens || [];
-      let totalUSD = 0;
-
-      for (let token of coins) {
-        if (token.amount && token.priceInfo?.pricePerToken?.usd) {
-          totalUSD += (token.amount / Math.pow(10, token.decimals)) * token.priceInfo.pricePerToken.usd;
-        }
-      }
-
-      totalUSD = Math.round(totalUSD);
-      const percent = Math.min(100, (totalUSD / GOAL) * 100).toFixed(1);
-
-      document.getElementById("currentAmount").textContent = `$${totalUSD.toLocaleString()}`;
-      document.getElementById("progressBar").style.width = `${percent}%`;
-    }
-
-    fetchTotalBalance();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
