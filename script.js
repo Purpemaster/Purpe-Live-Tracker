@@ -1,33 +1,53 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const wallet = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-  const heliusAPI = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-  const endpoint = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${heliusAPI}`;
-  const goal = 20000;
+const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+const goalUSD = 20000;
 
-  try {
-    const response = await fetch(endpoint);
-    const data = await response.json();
+async function fetchWalletTokens() {
+  const response = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=2e046356-0f0c-4880-93cc-6d5467e81c73`);
+  const data = await response.json();
+  return data.tokens || [];
+}
 
-    const lamports = data.nativeBalance?.lamports || 0;
-    const sol = lamports / 1000000000;
-    const solUSD = sol * 132.59;
+async function fetchPrices() {
+  const response = await fetch(
+    "https://api.coingecko.com/api/v3/simple/price?ids=solana,tether,pepe&vs_currencies=usd"
+  );
+  return await response.json();
+}
 
-    let tokenUSD = 0;
-    if (Array.isArray(data.tokens)) {
-      tokenUSD = data.tokens.reduce((sum, token) => {
-        return sum + (token?.value?.usd || 0);
-      }, 0);
-    }
-
-    const totalUSD = solUSD + tokenUSD;
-    const percent = Math.min((totalUSD / goal) * 100, 100);
-
-    document.getElementById("progressFill").style.width = `${percent}%`;
-    document.getElementById("amountStart").textContent = `$${Math.round(totalUSD).toLocaleString()}`;
-    document.getElementById("amountGoal").textContent = `$${goal.toLocaleString()}`;
-
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Wallet-Daten:", error);
-    document.getElementById("amountStart").textContent = "Error";
+function getTokenPrice(prices, symbol) {
+  switch (symbol) {
+    case "SOL": return prices.solana?.usd || 0;
+    case "USDC": return prices.tether?.usd || 0;
+    case "PURPE": return prices.pepe?.usd || 0;
+    default: return 0;
   }
-});
+}
+
+async function updateProgressBar() {
+  try {
+    const [tokens, prices] = await Promise.all([
+      fetchWalletTokens(),
+      fetchPrices()
+    ]);
+
+    let totalUSD = 0;
+
+    tokens.forEach(token => {
+      const symbol = token.tokenSymbol;
+      const amount = parseFloat(token.amount);
+      const price = getTokenPrice(prices, symbol);
+      totalUSD += amount * price;
+    });
+
+    const progress = Math.min((totalUSD / goalUSD) * 100, 100).toFixed(2);
+    document.getElementById("wallet-amount").textContent = `$${totalUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById("progress-bar-fill").style.width = `${progress}%`;
+
+    console.log("Wallet total USD:", totalUSD);
+  } catch (err) {
+    console.error("Fehler beim Laden der Walletdaten:", err);
+  }
+}
+
+updateProgressBar();
+setInterval(updateProgressBar, 60 * 1000); // alle 60 Sekunden aktualisieren
