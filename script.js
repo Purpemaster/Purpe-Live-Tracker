@@ -36,15 +36,20 @@ async function fetchWalletBalance() {
 
     let tokenUSD = 0;
     tokens.forEach(token => {
-      const mint = token.mint;
-      const decimals = token.decimals || 0;
-      const amount = token.amount / 10 ** decimals;
+  const mint = token.mint;
+  const decimals = token.decimals || 0;
+  const amount = token.amount / 10 ** decimals;
 
-      const geckoId = tokenMap[mint];
-      const price = prices[geckoId]?.usd || 0;
+  const geckoId = tokenMap[mint];
+  if (!geckoId) return; // ignoriere unbekannte Tokens
 
-      tokenUSD += amount * price;
-    });
+  const price = prices[geckoId]?.usd || 0;
+  const value = amount * price;
+
+  console.log(`[DEBUG] Token: ${geckoId} | Mint: ${mint} | Menge: ${amount} | Preis: ${price} | USD-Wert: ${value}`);
+
+  tokenUSD += value;
+});
 
     const totalUSD = solUSD + tokenUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
