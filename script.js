@@ -2,10 +2,9 @@ const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
-const purpeMint = "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump";
+const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
 const fallbackPricePurpe = 0.0000373;
 
-// Preis von CoinGecko für Solana
 async function fetchSolPrice() {
   try {
     const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
@@ -17,15 +16,18 @@ async function fetchSolPrice() {
   }
 }
 
-// Preis von CoinGecko für Purple Pepe (PURPE)
 async function fetchPurpePrice() {
   try {
-    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=purple-pepe&vs_currencies=usd");
+    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL");
     const data = await res.json();
-    return data["purple-pepe"]?.usd || null;
+    if (data.pairs && data.pairs.length > 0) {
+      const priceUsd = parseFloat(data.pairs[0].priceUsd);
+      return isNaN(priceUsd) ? fallbackPricePurpe : priceUsd;
+    }
+    return fallbackPricePurpe;
   } catch (err) {
     console.error("Fehler bei PURPE-Preisabfrage:", err);
-    return null;
+    return fallbackPricePurpe;
   }
 }
 
@@ -50,8 +52,7 @@ async function fetchWalletBalance() {
 
       if (mint === purpeMint) {
         const purpePrice = await fetchPurpePrice();
-        const price = purpePrice !== null ? purpePrice : fallbackPricePurpe;
-        purpeUSD = amount * price;
+        purpeUSD = amount * purpePrice;
       }
     }
 
