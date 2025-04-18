@@ -3,12 +3,7 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
 const purpeMint = "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump";
-const pyusdMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-
-const fallbackPrices = {
-  PURPE: 0.0000373,
-  PYUSD: 0.9999
-};
+const fallbackPricePurpe = 0.0000373;
 
 async function fetchSolPrice() {
   const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
@@ -21,7 +16,8 @@ async function fetchDexScreenerPrice(mint) {
     const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${mint}`);
     const data = await res.json();
     if (data.pairs && data.pairs.length > 0) {
-      return parseFloat(data.pairs[0].priceUsd);
+      const priceUsd = parseFloat(data.pairs[0].priceUsd);
+      return isNaN(priceUsd) ? null : priceUsd;
     }
     return null;
   } catch (err) {
@@ -43,7 +39,6 @@ async function fetchWalletBalance() {
     const solUSD = sol * solPrice;
 
     let purpeUSD = 0;
-    let pyusdUSD = 0;
 
     for (const token of tokens) {
       const mint = token.mint;
@@ -51,17 +46,12 @@ async function fetchWalletBalance() {
       const amount = token.amount / 10 ** decimals;
 
       if (mint === purpeMint) {
-        const price = (await fetchDexScreenerPrice(mint)) || fallbackPrices.PURPE;
-        purpeUSD = amount * price;
-      }
-
-      if (mint === pyusdMint) {
-        const price = (await fetchDexScreenerPrice(mint)) || fallbackPrices.PYUSD;
-        pyusdUSD = amount * price;
+        const purpePrice = (await fetchDexScreenerPrice(mint)) || fallbackPricePurpe;
+        purpeUSD = amount * purpePrice;
       }
     }
 
-    const totalUSD = solUSD + purpeUSD + pyusdUSD;
+    const totalUSD = solUSD + purpeUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
     document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
@@ -71,8 +61,7 @@ async function fetchWalletBalance() {
     if (breakdownEl) {
       breakdownEl.innerHTML = `
         • SOL: $${solUSD.toFixed(2)}<br>
-        • PURPE: $${purpeUSD.toFixed(2)}<br>
-        • PYUSD: $${pyusdUSD.toFixed(2)}
+        • PURPE: $${purpeUSD.toFixed(2)}
       `;
     }
 
