@@ -2,10 +2,13 @@ const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
-const tokenMap = {
-  "So11111111111111111111111111111111111111112": "solana", // native SOL
-  "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump": "PURPE", // via Jupiter
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PYUSD"  // via Jupiter
+const purpeMint = "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump";
+const pyusdMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
+
+// Fallback-Fixpreise
+const fallbackPrices = {
+  PURPE: 0.0000373,
+  PYUSD: 0.9999
 };
 
 async function fetchSolPrice() {
@@ -18,10 +21,10 @@ async function fetchJupiterPrice(mint) {
   try {
     const res = await fetch(`https://price.jup.ag/v4/price?ids=${mint}`);
     const data = await res.json();
-    return data.data[mint]?.price || 0;
+    return data.data?.[mint]?.price || null;
   } catch (err) {
     console.error("Jupiter API Fehler:", err);
-    return 0;
+    return null;
   }
 }
 
@@ -45,14 +48,16 @@ async function fetchWalletBalance() {
       const decimals = token.decimals || 0;
       const amount = token.amount / 10 ** decimals;
 
-      if (mint === "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump") {
-        const purpePrice = await fetchJupiterPrice(mint);
-        purpeUSD = amount * purpePrice;
+      if (mint === purpeMint) {
+        const livePrice = await fetchJupiterPrice(mint);
+        const price = livePrice || fallbackPrices.PURPE;
+        purpeUSD = amount * price;
       }
 
-      if (mint === "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL") {
-        const pyusdPrice = await fetchJupiterPrice(mint);
-        pyusdUSD = amount * pyusdPrice;
+      if (mint === pyusdMint) {
+        const livePrice = await fetchJupiterPrice(mint);
+        const price = livePrice || fallbackPrices.PYUSD;
+        pyusdUSD = amount * price;
       }
     }
 
