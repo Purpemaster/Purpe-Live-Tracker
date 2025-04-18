@@ -1,46 +1,67 @@
 const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-const apiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
+
+const tokenMap = {
+  "So11111111111111111111111111111111111111112": "solana", // Native SOL
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "usd-coin", // USDC
+  "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump": "purple-pepe" // PURPE
+};
+
+async function fetchTokenPrices(ids) {
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(",")}&vs_currencies=usd`;
+  const response = await fetch(url);
+  return await response.json();
+}
 
 async function fetchWalletBalance() {
   try {
-    const response = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${apiKey}`);
-    const data = await response.json();
+    const heliusRes = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
+    const data = await heliusRes.json();
 
-    let solUSD = Number(data.nativeBalance?.usd || 0);
+    const tokens = data.tokens || [];
+    const lamports = data.nativeBalance || 0;
+    const sol = lamports / 1_000_000_000;
+
+    const geckoIds = new Set(["solana"]);
+    tokens.forEach(token => {
+      const mint = token.mint;
+      if (tokenMap[mint]) geckoIds.add(tokenMap[mint]);
+    });
+
+    const prices = await fetchTokenPrices([...geckoIds]);
+
+    const solPrice = prices["solana"]?.usd || 0;
+    const solUSD = sol * solPrice;
+
     let tokenUSD = 0;
+    tokens.forEach(token => {
+      const mint = token.mint;
+      const decimals = token.decimals || 0;
+      const amount = token.amount / 10 ** decimals;
 
-    if (Array.isArray(data.tokens)) {
-      data.tokens.forEach(token => {
-        const symbol = token?.tokenInfo?.symbol?.toUpperCase() || "";
-        const price = Number(token?.tokenInfo?.price || 0);
-        const amount = Number(token?.amount || 0);
-        if (["USDC", "PURPE", "PURPLE", "PAYPALUSD"].includes(symbol)) {
-          tokenUSD += amount * price;
-        }
-      });
-    }
+      const geckoId = tokenMap[mint];
+      const price = prices[geckoId]?.usd || 0;
+
+      tokenUSD += amount * price;
+    });
 
     const totalUSD = solUSD + tokenUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
-    const amountElem = document.getElementById("raised-amount");
-    const barElem = document.getElementById("progress-bar");
+    document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
+    document.getElementById("progress-bar").style.width = `${percent}%`;
 
-    if (amountElem && barElem) {
-      amountElem.textContent = `$${totalUSD.toFixed(2)}`;
-      barElem.style.width = `${percent}%`;
-    } else {
-      console.warn("DOM-Elemente nicht gefunden");
-    }
+    console.log("Live Spendenstand:", {
+      SOL: solUSD,
+      Token: tokenUSD,
+      Gesamt: totalUSD,
+    });
 
-    console.log("Wallet Balance:", { solUSD, tokenUSD, totalUSD, percent });
-
-  } catch (error) {
-    console.error("Fehler beim Abrufen des Wallet-Guthabens:", error);
+  } catch (err) {
+    console.error("Fehler beim Abrufen:", err);
   }
 }
 
-// Run on load and refresh every 60 seconds
 fetchWalletBalance();
 setInterval(fetchWalletBalance, 60000);
