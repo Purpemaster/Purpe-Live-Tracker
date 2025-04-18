@@ -90,4 +90,4 @@
     fetchWalletBalance();
     setInterval(fetchWalletBalance, 60000); // Update alle 60 Sekunden
   });
-</script>ü
+</script>
