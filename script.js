@@ -35,28 +35,32 @@ async function fetchWalletBalance() {
     const solUSD = sol * solPrice;
 
     let tokenUSD = 0;
+
     tokens.forEach(token => {
-  const mint = token.mint;
-  const decimals = token.decimals || 0;
-  const amount = token.amount / 10 ** decimals;
+      const mint = token.mint;
+      const decimals = token.decimals || 0;
+      const amount = token.amount / 10 ** decimals;
 
-  const geckoId = tokenMap[mint];
-  if (!geckoId) return; // ignoriere unbekannte Tokens
+      const geckoId = tokenMap[mint];
+      if (!geckoId) return; // ignoriere unbekannte Tokens
 
-  const price = prices[geckoId]?.usd || 0;
-  const value = amount * price;
+      const price = prices[geckoId]?.usd || 0;
+      const value = amount * price;
 
-  console.log(`[DEBUG] Token: ${geckoId} | Mint: ${mint} | Menge: ${amount} | Preis: ${price} | USD-Wert: ${value}`);
+      // DEBUG: Zeige genau, was berechnet wird
+      console.log(`[DEBUG] Token: ${geckoId} | Mint: ${mint} | Menge: ${amount} | Preis: ${price} | USD-Wert: ${value}`);
 
-  tokenUSD += value;
-});
+      tokenUSD += value;
+    });
 
     const totalUSD = solUSD + tokenUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
+    // UI aktualisieren
     document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-bar").style.width = `${percent}%`;
 
+    console.log(`[TOTAL] SOL: $${solUSD.toFixed(2)} | Token: $${tokenUSD.toFixed(2)} | Gesamt: $${totalUSD.toFixed(2)}`);
   } catch (err) {
     console.error("Fehler beim Abrufen:", err);
   }
