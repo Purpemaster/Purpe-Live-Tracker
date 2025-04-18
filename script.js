@@ -5,27 +5,27 @@ const goalUSD = 20000;
 const purpeMint = "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump";
 const pyusdMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
 
-// Fallback-Fixpreise
 const fallbackPrices = {
   PURPE: 0.0000373,
   PYUSD: 0.9999
 };
 
-// Hole den SOL-Preis von CoinGecko
 async function fetchSolPrice() {
   const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
   const data = await res.json();
   return data.solana?.usd || 0;
 }
 
-// Hole Tokenpreis von Jupiter (DEX-Preis)
-async function fetchJupiterPrice(mint) {
+async function fetchDexScreenerPrice(mint) {
   try {
-    const res = await fetch(`https://price.jup.ag/v4/price?ids=${mint}`);
+    const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${mint}`);
     const data = await res.json();
-    return data.data?.[mint]?.price || null;
+    if (data.pairs && data.pairs.length > 0) {
+      return parseFloat(data.pairs[0].priceUsd);
+    }
+    return null;
   } catch (err) {
-    console.error("Jupiter API Fehler:", err);
+    console.error("DexScreener API Fehler:", err);
     return null;
   }
 }
@@ -39,7 +39,6 @@ async function fetchWalletBalance() {
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
 
-    // Hole den aktuellen SOL-Preis
     const solPrice = await fetchSolPrice();
     const solUSD = sol * solPrice;
 
@@ -48,23 +47,18 @@ async function fetchWalletBalance() {
 
     for (const token of tokens) {
       const mint = token.mint;
-
-      // Sicher: Dezimalstellen korrekt setzen
       const decimals = token.decimals && token.decimals > 0 ? token.decimals : 6;
       const amount = token.amount / 10 ** decimals;
 
       if (mint === purpeMint) {
-        const price = (await fetchJupiterPrice(mint)) || fallbackPrices.PURPE;
+        const price = (await fetchDexScreenerPrice(mint)) || fallbackPrices.PURPE;
         purpeUSD = amount * price;
       }
 
       if (mint === pyusdMint) {
-        const price = (await fetchJupiterPrice(mint)) || fallbackPrices.PYUSD;
+        const price = (await fetchDexScreenerPrice(mint)) || fallbackPrices.PYUSD;
         pyusdUSD = amount * price;
       }
-
-      // Optional: Debug
-      // console.log(`Token: ${mint} | Decimals: ${decimals} | Amount: ${amount}`);
     }
 
     const totalUSD = solUSD + purpeUSD + pyusdUSD;
