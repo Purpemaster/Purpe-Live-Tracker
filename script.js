@@ -11,12 +11,14 @@ const fallbackPrices = {
   PYUSD: 0.9999
 };
 
+// Hole den SOL-Preis von CoinGecko
 async function fetchSolPrice() {
   const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
   const data = await res.json();
   return data.solana?.usd || 0;
 }
 
+// Hole Tokenpreis von Jupiter (DEX-Preis)
 async function fetchJupiterPrice(mint) {
   try {
     const res = await fetch(`https://price.jup.ag/v4/price?ids=${mint}`);
@@ -37,6 +39,7 @@ async function fetchWalletBalance() {
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
 
+    // Hole den aktuellen SOL-Preis
     const solPrice = await fetchSolPrice();
     const solUSD = sol * solPrice;
 
@@ -45,20 +48,23 @@ async function fetchWalletBalance() {
 
     for (const token of tokens) {
       const mint = token.mint;
-      const decimals = token.decimals || 0;
+
+      // Sicher: Dezimalstellen korrekt setzen
+      const decimals = token.decimals && token.decimals > 0 ? token.decimals : 6;
       const amount = token.amount / 10 ** decimals;
 
       if (mint === purpeMint) {
-        const livePrice = await fetchJupiterPrice(mint);
-        const price = livePrice || fallbackPrices.PURPE;
+        const price = (await fetchJupiterPrice(mint)) || fallbackPrices.PURPE;
         purpeUSD = amount * price;
       }
 
       if (mint === pyusdMint) {
-        const livePrice = await fetchJupiterPrice(mint);
-        const price = livePrice || fallbackPrices.PYUSD;
+        const price = (await fetchJupiterPrice(mint)) || fallbackPrices.PYUSD;
         pyusdUSD = amount * price;
       }
+
+      // Optional: Debug
+      // console.log(`Token: ${mint} | Decimals: ${decimals} | Amount: ${amount}`);
     }
 
     const totalUSD = solUSD + purpeUSD + pyusdUSD;
