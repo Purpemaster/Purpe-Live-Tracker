@@ -18,15 +18,15 @@ async function fetchSolPrice() {
 
 async function fetchPurpePrice() {
   try {
-    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL");
-    const data = await res.json();
+    const response = await fetch('https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL');
+    const data = await response.json();
     if (data.pairs && data.pairs.length > 0) {
       const priceUsd = parseFloat(data.pairs[0].priceUsd);
       return isNaN(priceUsd) ? fallbackPricePurpe : priceUsd;
     }
     return fallbackPricePurpe;
-  } catch (err) {
-    console.error("Fehler bei PURPE-Preisabfrage:", err);
+  } catch (error) {
+    console.error("Fehler bei der PURPE-Preisabfrage:", error);
     return fallbackPricePurpe;
   }
 }
