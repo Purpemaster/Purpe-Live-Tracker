@@ -2,68 +2,61 @@ const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
-const purpeMint = "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump";
-const fallbackPricePurpe = 0.0000373;
+const tokenMap = {
+  "So11111111111111111111111111111111111111112": "solana", // Native SOL
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "usd-coin", // USDC
+  "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump": "purple-pepe" // PURPE
+};
 
-async function fetchSolPrice() {
-  const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
-  const data = await res.json();
-  return data.solana?.usd || 0;
-}
-
-async function fetchDexScreenerPrice(mint) {
-  try {
-    const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${mint}`);
-    const data = await res.json();
-    if (data.pairs && data.pairs.length > 0) {
-      const priceUsd = parseFloat(data.pairs[0].priceUsd);
-      return isNaN(priceUsd) ? null : priceUsd;
-    }
-    return null;
-  } catch (err) {
-    console.error("DexScreener API Fehler:", err);
-    return null;
-  }
+async function fetchTokenPrices(ids) {
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(",")}&vs_currencies=usd`;
+  const response = await fetch(url);
+  return await response.json();
 }
 
 async function fetchWalletBalance() {
   try {
-    const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
-    const data = await res.json();
+    const heliusRes = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
+    const data = await heliusRes.json();
 
     const tokens = data.tokens || [];
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
 
-    const solPrice = await fetchSolPrice();
+    const geckoIds = new Set(["solana"]);
+    tokens.forEach(token => {
+      const mint = token.mint;
+      if (tokenMap[mint]) geckoIds.add(tokenMap[mint]);
+    });
+
+    const prices = await fetchTokenPrices([...geckoIds]);
+
+    const solPrice = prices["solana"]?.usd || 0;
     const solUSD = sol * solPrice;
 
-    let purpeUSD = 0;
-
-    for (const token of tokens) {
+    let tokenUSD = 0;
+    tokens.forEach(token => {
       const mint = token.mint;
-      const decimals = token.decimals && token.decimals > 0 ? token.decimals : 6;
+      const decimals = token.decimals || 0;
       const amount = token.amount / 10 ** decimals;
 
-      if (mint === purpeMint) {
-        const purpePrice = (await fetchDexScreenerPrice(mint)) || fallbackPricePurpe;
-        purpeUSD = amount * purpePrice;
-      }
-    }
+      const geckoId = tokenMap[mint];
+      const price = prices[geckoId]?.usd || 0;
 
-    const totalUSD = solUSD + purpeUSD;
+      tokenUSD += amount * price;
+    });
+
+    const totalUSD = solUSD + tokenUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
     document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-bar").style.width = `${percent}%`;
 
-    const breakdownEl = document.getElementById("token-breakdown");
-    if (breakdownEl) {
-      breakdownEl.innerHTML = `
-        • SOL: $${solUSD.toFixed(2)}<br>
-        • PURPE: $${purpeUSD.toFixed(2)}
-      `;
-    }
+    console.log("Live Spendenstand:", {
+      SOL: solUSD,
+      Token: tokenUSD,
+      Gesamt: totalUSD,
+    });
 
   } catch (err) {
     console.error("Fehler beim Abrufen:", err);
