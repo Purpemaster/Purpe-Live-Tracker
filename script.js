@@ -3,7 +3,7 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
 const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-const pyusdMint = "DBVNRGD92PoQwX2dVrCx349LnesMm7L4UnNcF1LbUK5L";
+const pyusdMint = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
 
 const fallbackPurpePrice = 0.0000373;
 const fixedPyusdPrice = 1.00;
