@@ -3,9 +3,9 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
 const tokenMap = {
-  "So11111111111111111111111111111111111111112": "solana", // Native SOL
-  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "usd-coin", // USDC
-  "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump": "purple-pepe" // PURPE
+  "So11111111111111111111111111111111111111112": "solana",           // SOL
+  "5KdM72CGe2TqgccLZs1BdKx4445tXkrBrv9oa8s8T6pump": "purple-pepe",    // Purple Pepe
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "paypal-usd"        // PayPal USD
 };
 
 async function fetchTokenPrices(ids) {
@@ -51,12 +51,6 @@ async function fetchWalletBalance() {
 
     document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-bar").style.width = `${percent}%`;
-
-    console.log("Live Spendenstand:", {
-      SOL: solUSD,
-      Token: tokenUSD,
-      Gesamt: totalUSD,
-    });
 
   } catch (err) {
     console.error("Fehler beim Abrufen:", err);
