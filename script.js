@@ -56,11 +56,11 @@ async function fetchWalletBalance() {
       const amount = token.amount / Math.pow(10, decimals);
 
       if (mint === purpeMint.toLowerCase()) {
-        purpeUSD += amount * purpePrice; // Fix: += statt =
+        purpeUSD = amount * purpePrice;
       }
 
       if (mint === pyusdMint.toLowerCase()) {
-        pyusdUSD += amount * fixedPyusdPrice; // Fix: += statt =
+        pyusdUSD = amount * fixedPyusdPrice;
       }
     }
 
@@ -85,4 +85,4 @@ async function fetchWalletBalance() {
 }
 
 fetchWalletBalance();
-setInterval(fetchWalletBalance, 60000);
+setInterval(fetchWalletBalance, 60000);p
