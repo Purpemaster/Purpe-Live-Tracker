@@ -2,12 +2,15 @@ const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
+// Mint-Adressen
 const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
 const pyusdMint = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
 
+// Fallback-Preise
 const fallbackPurpePrice = 0.0000373;
-const fixedPyusdPrice = 1.00;
+const fallbackPyusdPrice = 1.00;
 
+// Preis von SOL (via Coingecko)
 async function fetchSolPrice() {
   try {
     const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
@@ -19,6 +22,7 @@ async function fetchSolPrice() {
   }
 }
 
+// Preis von PURPE (via Dexscreener)
 async function fetchPurpePrice() {
   try {
     const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL");
@@ -34,6 +38,23 @@ async function fetchPurpePrice() {
   }
 }
 
+// Preis von PYUSD (via Dexscreener)
+async function fetchPyusdPrice() {
+  try {
+    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/9tXiuRRw7kbejLhZXtxDxYs2REe43uH2e7k1kocgdM9B");
+    const data = await res.json();
+    if (data.pairs && data.pairs.length > 0) {
+      const priceUsd = parseFloat(data.pairs[0].priceUsd);
+      return isNaN(priceUsd) ? fallbackPyusdPrice : priceUsd;
+    }
+    return fallbackPyusdPrice;
+  } catch (err) {
+    console.error("Fehler bei PYUSD-Preisabfrage:", err);
+    return fallbackPyusdPrice;
+  }
+}
+
+// Hauptfunktion: Wallet analysieren & UI aktualisieren
 async function fetchWalletBalance() {
   try {
     const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
@@ -43,8 +64,10 @@ async function fetchWalletBalance() {
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
 
+    // Preise holen
     const solPrice = await fetchSolPrice();
     const purpePrice = await fetchPurpePrice();
+    const pyusdPrice = await fetchPyusdPrice();
 
     const solUSD = sol * solPrice;
     let purpeUSD = 0;
@@ -60,13 +83,14 @@ async function fetchWalletBalance() {
       }
 
       if (mint === pyusdMint) {
-        pyusdUSD = amount * fixedPyusdPrice;
+        pyusdUSD = amount * pyusdPrice;
       }
     }
 
     const totalUSD = solUSD + purpeUSD + pyusdUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
+    // UI aktualisieren
     document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-bar").style.width = `${percent}%`;
 
@@ -84,5 +108,6 @@ async function fetchWalletBalance() {
   }
 }
 
+// Beim Start ausführen und alle 60 Sek. aktualisieren
 fetchWalletBalance();
 setInterval(fetchWalletBalance, 60000);
