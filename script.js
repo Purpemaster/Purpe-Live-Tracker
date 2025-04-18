@@ -7,18 +7,16 @@ async function fetchWalletBalance() {
     const response = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${apiKey}`);
     const data = await response.json();
 
-    let solUSD = 0;
+    let solUSD = Number(data.nativeBalance?.usd || 0);
     let tokenUSD = 0;
 
-    if (data.nativeBalance && data.nativeBalance.usd) {
-      solUSD = data.nativeBalance.usd;
-    }
-
-    if (data.tokens && Array.isArray(data.tokens)) {
+    if (Array.isArray(data.tokens)) {
       data.tokens.forEach(token => {
         const symbol = token?.tokenInfo?.symbol?.toUpperCase() || "";
+        const price = Number(token?.tokenInfo?.price || 0);
+        const amount = Number(token?.amount || 0);
         if (["USDC", "PURPE", "PURPLE", "PAYPALUSD"].includes(symbol)) {
-          tokenUSD += token.amount * (token.tokenInfo?.price || 0);
+          tokenUSD += amount * price;
         }
       });
     }
@@ -26,13 +24,20 @@ async function fetchWalletBalance() {
     const totalUSD = solUSD + tokenUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
-    // Update UI
-    document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
-    document.getElementById("progress-bar").style.width = `${percent}%`;
+    const amountElem = document.getElementById("raised-amount");
+    const barElem = document.getElementById("progress-bar");
+
+    if (amountElem && barElem) {
+      amountElem.textContent = `$${totalUSD.toFixed(2)}`;
+      barElem.style.width = `${percent}%`;
+    } else {
+      console.warn("DOM-Elemente nicht gefunden");
+    }
 
     console.log("Wallet Balance:", { solUSD, tokenUSD, totalUSD, percent });
+
   } catch (error) {
-    console.error("Error fetching wallet balance:", error);
+    console.error("Fehler beim Abrufen des Wallet-Guthabens:", error);
   }
 }
 
