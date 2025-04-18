@@ -23,7 +23,6 @@ async function fetchWalletBalance() {
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
 
-    // Alle CoinGecko-IDs aus tokenMap vorbereiten
     const geckoIds = new Set(["solana"]);
     tokens.forEach(token => {
       const id = tokenMap[token.mint];
@@ -31,28 +30,47 @@ async function fetchWalletBalance() {
     });
 
     const prices = await fetchTokenPrices([...geckoIds]);
-
     const solPrice = prices["solana"]?.usd || 0;
     const solUSD = sol * solPrice;
 
     let tokenUSD = 0;
+    let purpeUSD = 0;
+    let pyusdUSD = 0;
+
     tokens.forEach(token => {
       const mint = token.mint;
       const geckoId = tokenMap[mint];
       if (!geckoId) return;
 
-      const amount = token.amount / 10 ** (token.decimals || 0);
+      const decimals = token.decimals || 0;
+      const amount = token.amount / 10 ** decimals;
       const price = prices[geckoId]?.usd || 0;
-      tokenUSD += amount * price;
+      const tokenValue = amount * price;
+
+      tokenUSD += tokenValue;
+
+      if (geckoId === "purple-pepe") purpeUSD = tokenValue;
+      if (geckoId === "paypal-usd") pyusdUSD = tokenValue;
     });
 
     const totalUSD = solUSD + tokenUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
+    // UI aktualisieren
     document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-bar").style.width = `${percent}%`;
+
+    // Einzelwerte anzeigen
+    const breakdownEl = document.getElementById("token-breakdown");
+    if (breakdownEl) {
+      breakdownEl.innerHTML = `
+        • SOL: $${solUSD.toFixed(2)}<br>
+        • PURPE: $${purpeUSD.toFixed(2)}<br>
+        • PYUSD: $${pyusdUSD.toFixed(2)}
+      `;
+    }
   } catch (err) {
-    console.error("Fehler beim Laden:", err);
+    console.error("Fehler beim Abrufen:", err);
   }
 }
 
