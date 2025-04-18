@@ -8,26 +8,20 @@ const pyusdMint = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
 const fallbackPurpePrice = 0.0000373;
 const fixedPyusdPrice = 1.00;
 
-interface Token {
-  mint: string;
-  amount: number;
-  decimals: number;
-}
-
-async function fetchSolPrice(): Promise<number> {
+async function fetchSolPrice() {
   try {
     const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
     const data = await res.json();
-    return data.solana?.usd ?? 0;
+    return data.solana?.usd || 0;
   } catch (err) {
     console.error("Fehler bei SOL-Preisabfrage:", err);
     return 0;
   }
 }
 
-async function fetchPurpePrice(): Promise<number> {
+async function fetchPurpePrice() {
   try {
-    const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${purpeMint}`);
+    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL");
     const data = await res.json();
     if (data.pairs && data.pairs.length > 0) {
       const priceUsd = parseFloat(data.pairs[0].priceUsd);
@@ -40,14 +34,14 @@ async function fetchPurpePrice(): Promise<number> {
   }
 }
 
-async function fetchWalletBalance(): Promise<void> {
+async function fetchWalletBalance() {
   try {
     const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
     const data = await res.json();
 
-    const tokens: Token[] = data.tokens ?? [];
-    const lamports: number = data.nativeBalance ?? 0;
-    const sol: number = lamports / 1_000_000_000;
+    const tokens = data.tokens || [];
+    const lamports = data.nativeBalance || 0;
+    const sol = lamports / 1_000_000_000;
 
     const solPrice = await fetchSolPrice();
     const purpePrice = await fetchPurpePrice();
@@ -57,24 +51,24 @@ async function fetchWalletBalance(): Promise<void> {
     let pyusdUSD = 0;
 
     for (const token of tokens) {
-      const mint = token.mint.trim().toLowerCase();
-      const decimals = token.decimals ?? 6;
+      const mint = token.mint?.trim().toLowerCase();
+      const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
 
       if (mint === purpeMint.toLowerCase()) {
-        purpeUSD += amount * purpePrice;
+        purpeUSD = amount * purpePrice;
       }
 
       if (mint === pyusdMint.toLowerCase()) {
-        pyusdUSD += amount * fixedPyusdPrice;
+        pyusdUSD = amount * fixedPyusdPrice;
       }
     }
 
     const totalUSD = solUSD + purpeUSD + pyusdUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
-    document.getElementById("raised-amount")!.textContent = `$${totalUSD.toFixed(2)}`;
-    (document.getElementById("progress-bar")! as HTMLElement).style.width = `${percent}%`;
+    document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
+    document.getElementById("progress-bar").style.width = `${percent}%`;
 
     const breakdownEl = document.getElementById("token-breakdown");
     if (breakdownEl) {
@@ -91,4 +85,4 @@ async function fetchWalletBalance(): Promise<void> {
 }
 
 fetchWalletBalance();
-setInterval(fetchWalletBalance, 60000);p
+setInterval(fetchWalletBalance, 60000);
