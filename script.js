@@ -3,10 +3,11 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
 const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-const pyusdMint = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
+// Wir ignorieren PYUSD auf-chain, setzen statisch:
+const fixedPyusdPrice = 1.00;
+const pyusdManualAmount = 545; // <<< HIER einfach anpassen bei Bedarf
 
 const fallbackPurpePrice = 0.0000373;
-const fixedPyusdPrice = 1.00;
 
 async function fetchSolPrice() {
   try {
@@ -21,7 +22,7 @@ async function fetchSolPrice() {
 
 async function fetchPurpePrice() {
   try {
-    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL");
+    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/" + purpeMint);
     const data = await res.json();
     if (data.pairs && data.pairs.length > 0) {
       const priceUsd = parseFloat(data.pairs[0].priceUsd);
@@ -48,21 +49,20 @@ async function fetchWalletBalance() {
 
     const solUSD = sol * solPrice;
     let purpeUSD = 0;
-    let pyusdUSD = 0;
 
     for (const token of tokens) {
       const mint = token.mint?.trim().toLowerCase();
       const decimals = token.decimals || 6;
-      const amount = token.amount / Math.pow(10, decimals);
+      const rawAmount = parseFloat(token.amount) || 0;
+      const amount = rawAmount / Math.pow(10, decimals);
 
       if (mint === purpeMint.toLowerCase()) {
         purpeUSD = amount * purpePrice;
       }
-
-      if (mint === pyusdMint.toLowerCase()) {
-        pyusdUSD = amount * fixedPyusdPrice;
-      }
     }
+
+    // Manuell gesetzter PYUSD-Betrag:
+    const pyusdUSD = pyusdManualAmount * fixedPyusdPrice;
 
     const totalUSD = solUSD + purpeUSD + pyusdUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
@@ -85,4 +85,4 @@ async function fetchWalletBalance() {
 }
 
 fetchWalletBalance();
-setInterval(fetchWalletBalance, 60000);p
+setInterval(fetchWalletBalance, 60000);
