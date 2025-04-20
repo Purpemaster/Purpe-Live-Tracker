@@ -1,88 +1,124 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Live Donation Tracker</title>
 
-  <!-- Google Fonts – Orbitron für futuristischen Hacker-Vibe -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
-
-  <!-- Dein Style, du Künstler -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Orbitron Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- HIER ist dein kosmischer Hintergrund -->
+  <!-- Space-Pepe Hintergrund -->
   <div class="background"></div>
 
-  <!-- Der Rest deines Inhalts -->
+  <!-- Inhalt -->
   <div class="container">
     <div class="title pulse">Live Donation Tracker</div>
-    
+
     <div class="progress-bar">
-      <div class="progress-fill" style="width: 23.51%;"></div> <!-- Beispielwert -->
+      <div class="progress-fill" id="progress-fill"></div>
     </div>
 
     <div class="amounts">
-      <span>$4702.62</span>
-      <span>$20,000</span>
+      <span id="current-amount">$0.00</span>
+      <span id="goal-amount">$20000.00</span>
     </div>
 
-    <div class="info-box">
+    <div class="info-box" id="info-box">
       <p>Purple Pepe is becoming a legend –<br> this wallet is the fuel.</p>
       <p>Your donation powers our journey to the world's biggest exchanges.</p>
-      <p>SOL: $1383.12<br>
-         PURPE: $2774.50<br>
-         PYUSD: $545.00</p>
+      <p id="breakdown">
+        SOL: $1383.12<br>
+        PURPE: $2774.50<br>
+        PYUSD: $0.00
+      </p>
     </div>
   </div>
 
-  <!-- Dein ursprüngliches Skript bleibt unberührt -->
-  <script src="script.js"></script>
+  <script>
+    const donations = {
+      SOL: 1383.12,
+      PURPE: 2774.50,
+      PYUSD: 0.00
+    };
 
-  <!-- Neues PYUSD-Tracking via Solana (autonom & brav) -->
+    const GOAL = 20000;
+
+    function updateDisplay() {
+      const total = donations.SOL + donations.PURPE + donations.PYUSD;
+      const progress = Math.min((total / GOAL) * 100, 100).toFixed(2);
+
+      document.getElementById("current-amount").textContent = `$${total.toFixed(2)}`;
+      document.getElementById("goal-amount").textContent = `$${GOAL.toFixed(2)}`;
+      document.getElementById("progress-fill").style.width = `${progress}%`;
+
+      document.getElementById("breakdown").innerHTML = `
+        SOL: $${donations.SOL.toFixed(2)}<br>
+        PURPE: $${donations.PURPE.toFixed(2)}<br>
+        PYUSD: $${donations.PYUSD.toFixed(2)}
+      `;
+    }
+  </script>
+
+  <!-- Solana PYUSD BALANCE FETCH + TOAST -->
   <script>
     const SOLANA_WALLET = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
     const PYUSD_MINT = "F64NDwsvzu2i3KSYDhrPaZVJQDXZeZ37cZWLN1LduBNY";
     const HELIUS_API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 
-    async function fetchSolanaPYUSD() {
-      const url = `https://api.helius.xyz/v0/addresses/${SOLANA_WALLET}/transactions?api-key=${HELIUS_API_KEY}`;
+    let lastPYUSDBalance = null;
+
+    async function fetchSolanaPYUSDBalance() {
+      const url = `https://api.helius.xyz/v0/addresses/${SOLANA_WALLET}/balances?api-key=${HELIUS_API_KEY}`;
 
       try {
         const res = await fetch(url);
-        const txs = await res.json();
+        const data = await res.json();
+        const token = data.tokens.find(t => t.mint === PYUSD_MINT);
+        const balance = token ? token.amount : 0;
 
-        let totalPYUSD = 0;
-
-        txs.forEach(tx => {
-          if (!tx.tokenTransfers) return;
-
-          tx.tokenTransfers.forEach(transfer => {
-            if (
-              transfer.tokenMint === PYUSD_MINT &&
-              transfer.toUserAccount === SOLANA_WALLET
-            ) {
-              totalPYUSD += transfer.amount / Math.pow(10, transfer.decimals);
-            }
-          });
-        });
-
-        // Übergabe an bestehendes donations-Objekt
-        if (typeof donations !== "undefined") {
-          donations.PYUSD = totalPYUSD;
-          if (typeof updateDisplay === "function") updateDisplay();
+        if (lastPYUSDBalance !== null && balance > lastPYUSDBalance) {
+          const diff = (balance - lastPYUSDBalance).toFixed(2);
+          showToast(`+ $${diff} PYUSD received!`);
         }
 
+        lastPYUSDBalance = balance;
+        donations.PYUSD = balance;
+        updateDisplay();
+
       } catch (err) {
-        console.error("Fehler bei Solana-PYUSD-Abruf:", err);
+        console.error("PYUSD Fetch Error:", err);
       }
     }
 
-    // Starte direkt und dann alle 60 Sekunden
-    fetchSolanaPYUSD();
-    setInterval(fetchSolanaPYUSD, 60000);
+    function showToast(message) {
+      const toast = document.createElement("div");
+      toast.textContent = message;
+      toast.style.position = "fixed";
+      toast.style.bottom = "20px";
+      toast.style.right = "20px";
+      toast.style.background = "rgba(0,0,0,0.85)";
+      toast.style.color = "#fff";
+      toast.style.padding = "10px 20px";
+      toast.style.borderRadius = "8px";
+      toast.style.fontFamily = "'Orbitron', sans-serif";
+      toast.style.boxShadow = "0 0 15px purple";
+      toast.style.zIndex = "9999";
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.transition = "opacity 1s ease";
+        toast.style.opacity = 0;
+        setTimeout(() => toast.remove(), 1000);
+      }, 3000);
+    }
+
+    // Start sofort + Intervall
+    fetchSolanaPYUSDBalance();
+    setInterval(fetchSolanaPYUSDBalance, 60000);
   </script>
 
 </body>
