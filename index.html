@@ -27,26 +27,28 @@
       <p>Purple Pepe is becoming a legend –<br> this wallet is the fuel.</p>
       <p>Your donation powers our journey to the world's biggest exchanges.</p>
       <p id="breakdown">
-        SOL: $1383.12<br>
-        PURPE: $2774.50<br>
+        SOL: $0.00<br>
+        PURPE: $0.00<br>
         PYUSD: $0.00
       </p>
     </div>
   </div>
 
-  <!-- Debug-Box -->
-  <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:100px;
-    overflow:auto;background:black;color:#0f0;font-family:monospace;font-size:11px;
-    padding:5px;z-index:9999;opacity:0.9;"></div>
+  <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:120px;overflow:auto;background:black;color:#0f0;font-family:monospace;font-size:11px;padding:5px;z-index:9999;opacity:0.9;"></div>
 
   <script>
-    const debug = (msg) => {
+    const debug = msg => {
       const box = document.getElementById("debug-box");
-      const p = document.createElement("div");
-      p.textContent = `[DEBUG] ${msg}`;
-      box.appendChild(p);
+      const line = document.createElement("div");
+      line.textContent = `[DEBUG] ${msg}`;
+      box.appendChild(line);
       box.scrollTop = box.scrollHeight;
     };
+
+    const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+    const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
+    const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+    const API_URL = `https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`;
 
     const donations = {
       SOL: 1383.12,
@@ -71,63 +73,30 @@
       `;
     }
 
-    const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
-
-    let lastPYUSDBalance = null;
-
     async function fetchPYUSD() {
       debug("API-Abfrage gestartet…");
-      const url = `https://public-api.solscan.io/account/tokens?account=${WALLET}`;
 
       try {
-        const res = await fetch(url);
+        const res = await fetch(API_URL);
         const data = await res.json();
+
         debug("Antwort erhalten.");
 
-        const token = data.find(t => t.tokenAddress === PYUSD_MINT);
+        const token = data.tokens.find(t => t.mint === PYUSD_MINT);
         if (!token) {
           debug("PYUSD nicht gefunden!");
-          return;
+          donations.PYUSD = 0;
+        } else {
+          const amount = Number(token.amount) / Math.pow(10, token.decimals);
+          donations.PYUSD = amount;
+          debug(`PYUSD gefunden: ${amount.toFixed(2)} USD`);
         }
 
-        const balance = token.tokenAmount.uiAmount;
-        debug(`PYUSD gefunden: ${balance.toFixed(2)} USD`);
-
-        if (lastPYUSDBalance !== null && balance > lastPYUSDBalance) {
-          const diff = (balance - lastPYUSDBalance).toFixed(2);
-          showToast(`+ $${diff} PYUSD received!`);
-        }
-
-        lastPYUSDBalance = balance;
-        donations.PYUSD = balance;
         updateDisplay();
 
       } catch (err) {
-        debug(`Fehler bei API-Abfrage: ${err}`);
+        debug("Fehler bei API-Aufruf: " + err);
       }
-    }
-
-    function showToast(message) {
-      const toast = document.createElement("div");
-      toast.textContent = message;
-      toast.style.position = "fixed";
-      toast.style.bottom = "120px";
-      toast.style.right = "20px";
-      toast.style.background = "rgba(0,0,0,0.85)";
-      toast.style.color = "#fff";
-      toast.style.padding = "10px 20px";
-      toast.style.borderRadius = "8px";
-      toast.style.fontFamily = "'Orbitron', sans-serif";
-      toast.style.boxShadow = "0 0 15px purple";
-      toast.style.zIndex = "9999";
-      document.body.appendChild(toast);
-
-      setTimeout(() => {
-        toast.style.transition = "opacity 1s ease";
-        toast.style.opacity = 0;
-        setTimeout(() => toast.remove(), 1000);
-      }, 3000);
     }
 
     updateDisplay();
@@ -136,4 +105,4 @@
   </script>
 
 </body>
-</html>
+</html>ü
