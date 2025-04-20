@@ -1,10 +1,12 @@
 // Datei: solana-pyusd-balance.js
 
+// Wallet & Token-Mint (offiziell auf Solana getestet!)
 const SOLANA_WALLET = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
-const PYUSD_MINT = "F64NDwsvzu2i3KSYDhrPaZVJQDXZeZ37cZWLN1LduBNY";
+const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"; // <-- korrekt laut Solscan
 const HELIUS_API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 
-let lastBalance = null;
+// Letzter bekannter Stand
+let lastPYUSDBalance = null;
 
 async function fetchSolanaPYUSDBalance() {
   const url = `https://api.helius.xyz/v0/addresses/${SOLANA_WALLET}/balances?api-key=${HELIUS_API_KEY}`;
@@ -14,19 +16,19 @@ async function fetchSolanaPYUSDBalance() {
     const data = await res.json();
 
     const token = data.tokens.find(t => t.mint === PYUSD_MINT);
-    const pyusdBalance = token ? token.amount : 0;
+    const balance = token ? token.amount : 0;
 
-    // Wenn sich der Wert verändert hat, kannst du reagieren
-    if (lastBalance !== null && pyusdBalance !== lastBalance) {
-      const diff = (pyusdBalance - lastBalance).toFixed(2);
-      console.log(`Neue PYUSD-Spende entdeckt: +$${diff}`);
-      showToast(`+ $${diff} PYUSD`);
+    // Nur wenn sich etwas ändert
+    if (lastPYUSDBalance !== null && balance > lastPYUSDBalance) {
+      const diff = (balance - lastPYUSDBalance).toFixed(2);
+      showToast(`+ $${diff} PYUSD received!`);
     }
 
-    lastBalance = pyusdBalance;
+    lastPYUSDBalance = balance;
 
+    // An deine bestehende Oberfläche übergeben
     if (typeof donations !== "undefined") {
-      donations.PYUSD = pyusdBalance;
+      donations.PYUSD = balance;
       if (typeof updateDisplay === "function") updateDisplay();
     }
 
@@ -41,18 +43,22 @@ function showToast(message) {
   toast.style.position = "fixed";
   toast.style.bottom = "20px";
   toast.style.right = "20px";
-  toast.style.background = "rgba(0,0,0,0.8)";
-  toast.style.color = "white";
+  toast.style.background = "rgba(0,0,0,0.85)";
+  toast.style.color = "#fff";
   toast.style.padding = "10px 20px";
   toast.style.borderRadius = "8px";
-  toast.style.zIndex = "9999";
   toast.style.fontFamily = "'Orbitron', sans-serif";
-  toast.style.boxShadow = "0 0 10px purple";
+  toast.style.boxShadow = "0 0 15px purple";
+  toast.style.zIndex = "9999";
   document.body.appendChild(toast);
 
   setTimeout(() => {
-    toast.style.transition = "opacity 1s";
+    toast.style.transition = "opacity 1s ease";
     toast.style.opacity = 0;
     setTimeout(() => toast.remove(), 1000);
   }, 3000);
 }
+
+// Start + Loop
+fetchSolanaPYUSDBalance();
+setInterval(fetchSolanaPYUSDBalance, 60000);
