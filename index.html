@@ -32,12 +32,9 @@
         PYUSD: $0.00
       </p>
     </div>
-  </div>
 
-  <!-- Debug-Box -->
-  <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:100px;
-    overflow:auto;background:black;color:#0f0;font-family:monospace;font-size:11px;
-    padding:5px;z-index:9999;opacity:0.9;"></div>
+    <div id="debug-box" style="font-family: monospace; font-size: 12px; color: #0f0; background: #000; padding: 10px; margin-top: 20px;"></div>
+  </div>
 
   <script>
     const debug = (msg) => {
@@ -59,11 +56,9 @@
     function updateDisplay() {
       const total = donations.SOL + donations.PURPE + donations.PYUSD;
       const progress = Math.min((total / GOAL) * 100, 100).toFixed(2);
-
       document.getElementById("current-amount").textContent = `$${total.toFixed(2)}`;
       document.getElementById("goal-amount").textContent = `$${GOAL.toFixed(2)}`;
       document.getElementById("progress-fill").style.width = `${progress}%`;
-
       document.getElementById("breakdown").innerHTML = `
         SOL: $${donations.SOL.toFixed(2)}<br>
         PURPE: $${donations.PURPE.toFixed(2)}<br>
@@ -71,15 +66,15 @@
       `;
     }
 
-    const SOLANA_WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"; // Das ist DER RICHTIGE MINT auf Solana
-    const HELIUS_API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+    const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+    const PYUSD_MINT = "Es9vMFrzaCERmJfrF4H2FYD4KcoNkY11McCe8BenwNYB"; // ACTUAL MINT USED
+    const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 
     let lastPYUSDBalance = null;
 
-    async function fetchSolanaPYUSDBalance() {
+    async function fetchPYUSD() {
       debug("API-Abfrage gestartet…");
-      const url = `https://api.helius.xyz/v0/addresses/${SOLANA_WALLET}/balances?api-key=${HELIUS_API_KEY}`;
+      const url = `https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`;
 
       try {
         const res = await fetch(url);
@@ -87,27 +82,25 @@
         debug("Antwort erhalten.");
 
         const token = data.tokens.find(t => t.mint === PYUSD_MINT);
-
-        if (token) {
-          const rawAmount = token.amount;
-          const decimals = token.decimals || 6;
-          const balance = rawAmount / Math.pow(10, decimals);
-          debug(`PYUSD gefunden: ${balance.toFixed(2)}`);
-
-          if (lastPYUSDBalance !== null && balance > lastPYUSDBalance) {
-            const diff = (balance - lastPYUSDBalance).toFixed(2);
-            showToast(`+ $${diff} PYUSD received!`);
-          }
-
-          lastPYUSDBalance = balance;
-          donations.PYUSD = balance;
-          updateDisplay();
-        } else {
+        if (!token) {
           debug("PYUSD nicht gefunden!");
+          return;
         }
 
+        const balance = token.amount / Math.pow(10, token.decimals);
+        debug(`PYUSD gefunden: ${balance.toFixed(2)} USD`);
+
+        if (lastPYUSDBalance !== null && balance > lastPYUSDBalance) {
+          const diff = (balance - lastPYUSDBalance).toFixed(2);
+          showToast(`+ $${diff} PYUSD received!`);
+        }
+
+        lastPYUSDBalance = balance;
+        donations.PYUSD = balance;
+        updateDisplay();
+
       } catch (err) {
-        debug("Fehler: " + err.message);
+        debug(`Fehler bei API-Abfrage: ${err}`);
       }
     }
 
@@ -115,7 +108,7 @@
       const toast = document.createElement("div");
       toast.textContent = message;
       toast.style.position = "fixed";
-      toast.style.bottom = "120px";
+      toast.style.bottom = "20px";
       toast.style.right = "20px";
       toast.style.background = "rgba(0,0,0,0.85)";
       toast.style.color = "#fff";
@@ -133,10 +126,9 @@
       }, 3000);
     }
 
-    // Los geht’s
     updateDisplay();
-    fetchSolanaPYUSDBalance();
-    setInterval(fetchSolanaPYUSDBalance, 60000);
+    fetchPYUSD();
+    setInterval(fetchPYUSD, 60000);
   </script>
 
 </body>
