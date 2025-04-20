@@ -34,7 +34,7 @@
     </div>
   </div>
 
-  <!-- Debug Box -->
+  <!-- Debug-Box -->
   <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:100px;
     overflow:auto;background:black;color:#0f0;font-family:monospace;font-size:11px;
     padding:5px;z-index:9999;opacity:0.9;"></div>
@@ -72,27 +72,26 @@
     }
 
     const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"; // Your real PYUSD
-    const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+    const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
 
     let lastPYUSDBalance = null;
 
     async function fetchPYUSD() {
       debug("API-Abfrage gestartet…");
-      const url = `https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`;
+      const url = `https://public-api.solscan.io/account/tokens?account=${WALLET}`;
 
       try {
         const res = await fetch(url);
         const data = await res.json();
         debug("Antwort erhalten.");
 
-        const token = data.tokens.find(t => t.mint === PYUSD_MINT);
+        const token = data.find(t => t.tokenAddress === PYUSD_MINT);
         if (!token) {
           debug("PYUSD nicht gefunden!");
           return;
         }
 
-        const balance = token.amount / Math.pow(10, token.decimals);
+        const balance = token.tokenAmount.uiAmount;
         debug(`PYUSD gefunden: ${balance.toFixed(2)} USD`);
 
         if (lastPYUSDBalance !== null && balance > lastPYUSDBalance) {
