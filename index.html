@@ -29,12 +29,12 @@
       <p id="breakdown">
         SOL: $1383.12<br>
         PURPE: $2774.50<br>
-        USDC: $0.00
+        PYUSD: $0.00
       </p>
     </div>
   </div>
 
-  <!-- Debug-Box -->
+  <!-- Debug Box -->
   <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:100px;
     overflow:auto;background:black;color:#0f0;font-family:monospace;font-size:11px;
     padding:5px;z-index:9999;opacity:0.9;"></div>
@@ -51,13 +51,13 @@
     const donations = {
       SOL: 1383.12,
       PURPE: 2774.50,
-      USDC: 0.00
+      PYUSD: 0.00
     };
 
     const GOAL = 20000;
 
     function updateDisplay() {
-      const total = donations.SOL + donations.PURPE + donations.USDC;
+      const total = donations.SOL + donations.PURPE + donations.PYUSD;
       const progress = Math.min((total / GOAL) * 100, 100).toFixed(2);
 
       document.getElementById("current-amount").textContent = `$${total.toFixed(2)}`;
@@ -67,17 +67,17 @@
       document.getElementById("breakdown").innerHTML = `
         SOL: $${donations.SOL.toFixed(2)}<br>
         PURPE: $${donations.PURPE.toFixed(2)}<br>
-        USDC: $${donations.USDC.toFixed(2)}
+        PYUSD: $${donations.PYUSD.toFixed(2)}
       `;
     }
 
     const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+    const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"; // Your real PYUSD
     const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 
-    let lastUSDCBalance = null;
+    let lastPYUSDBalance = null;
 
-    async function fetchUSDC() {
+    async function fetchPYUSD() {
       debug("API-Abfrage gestartet…");
       const url = `https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`;
 
@@ -86,22 +86,22 @@
         const data = await res.json();
         debug("Antwort erhalten.");
 
-        const token = data.tokens.find(t => t.mint === USDC_MINT);
+        const token = data.tokens.find(t => t.mint === PYUSD_MINT);
         if (!token) {
-          debug("USDC nicht gefunden!");
+          debug("PYUSD nicht gefunden!");
           return;
         }
 
         const balance = token.amount / Math.pow(10, token.decimals);
-        debug(`USDC gefunden: ${balance.toFixed(2)} USD`);
+        debug(`PYUSD gefunden: ${balance.toFixed(2)} USD`);
 
-        if (lastUSDCBalance !== null && balance > lastUSDCBalance) {
-          const diff = (balance - lastUSDCBalance).toFixed(2);
-          showToast(`+ $${diff} USDC received!`);
+        if (lastPYUSDBalance !== null && balance > lastPYUSDBalance) {
+          const diff = (balance - lastPYUSDBalance).toFixed(2);
+          showToast(`+ $${diff} PYUSD received!`);
         }
 
-        lastUSDCBalance = balance;
-        donations.USDC = balance;
+        lastPYUSDBalance = balance;
+        donations.PYUSD = balance;
         updateDisplay();
 
       } catch (err) {
@@ -132,8 +132,8 @@
     }
 
     updateDisplay();
-    fetchUSDC();
-    setInterval(fetchUSDC, 60000);
+    fetchPYUSD();
+    setInterval(fetchPYUSD, 60000);
   </script>
 
 </body>
