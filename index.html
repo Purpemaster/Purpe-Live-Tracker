@@ -38,7 +38,52 @@
     </div>
   </div>
 
-  <!-- Dein Skript, wenn’s noch was live updated oder animiert -->
+  <!-- Dein ursprüngliches Skript bleibt unberührt -->
   <script src="script.js"></script>
+
+  <!-- Neues PYUSD-Tracking via Solana (autonom & brav) -->
+  <script>
+    const SOLANA_WALLET = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
+    const PYUSD_MINT = "F64NDwsvzu2i3KSYDhrPaZVJQDXZeZ37cZWLN1LduBNY";
+    const HELIUS_API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+
+    async function fetchSolanaPYUSD() {
+      const url = `https://api.helius.xyz/v0/addresses/${SOLANA_WALLET}/transactions?api-key=${HELIUS_API_KEY}`;
+
+      try {
+        const res = await fetch(url);
+        const txs = await res.json();
+
+        let totalPYUSD = 0;
+
+        txs.forEach(tx => {
+          if (!tx.tokenTransfers) return;
+
+          tx.tokenTransfers.forEach(transfer => {
+            if (
+              transfer.tokenMint === PYUSD_MINT &&
+              transfer.toUserAccount === SOLANA_WALLET
+            ) {
+              totalPYUSD += transfer.amount / Math.pow(10, transfer.decimals);
+            }
+          });
+        });
+
+        // Übergabe an bestehendes donations-Objekt
+        if (typeof donations !== "undefined") {
+          donations.PYUSD = totalPYUSD;
+          if (typeof updateDisplay === "function") updateDisplay();
+        }
+
+      } catch (err) {
+        console.error("Fehler bei Solana-PYUSD-Abruf:", err);
+      }
+    }
+
+    // Starte direkt und dann alle 60 Sekunden
+    fetchSolanaPYUSD();
+    setInterval(fetchSolanaPYUSD, 60000);
+  </script>
+
 </body>
 </html>
