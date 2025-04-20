@@ -1,4 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Donation Tracker</title>
 
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="background"></div>
+
+  <div class="container">
+    <div class="title pulse">Live Donation Tracker</div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <div class="amounts">
+      <span id="current-amount">$0.00</span>
+      <span id="goal-amount">$20000.00</span>
+    </div>
+
+    <div class="info-box" id="info-box">
+      <p>Purple Pepe is becoming a legend –<br> this wallet is the fuel.</p>
+      <p>Your donation powers our journey to the world's biggest exchanges.</p>
+      <p id="breakdown">
+        SOL: $1383.12<br>
+        PURPE: $2774.50<br>
+        PYUSD: $0.00
+      </p>
+    </div>
+  </div>
+
+  <!-- DEBUG-Konsole -->
+  <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:120px;
+    overflow:auto;background:black;color:#0f0;font-family:monospace;font-size:11px;
+    padding:5px;z-index:9999;opacity:0.9;"></div>
+
+  <!-- SCRIPT BEGINNT -->
+  <script>
     const debug = (msg) => {
       const box = document.getElementById("debug-box");
       const p = document.createElement("div");
@@ -30,24 +73,20 @@
       `;
     }
 
-    updateDisplay();
-  </script>
-
-  <!-- PYUSD Fetch mit On-Screen-Debug -->
-  <script>
     const SOLANA_WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
+    const PYUSD_MINT = "Es9vMFrzaCERmJfrF4H2FYD4KcoNkY11McCe8BenwNYB";
     const HELIUS_API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
     let lastPYUSDBalance = null;
 
     async function fetchSolanaPYUSDBalance() {
-      const url = `https://api.helius.xyz/v0/addresses/${SOLANA_WALLET}/balances?api-key=${HELIUS_API_KEY}`;
       debug("API-Abfrage gestartet…");
+      const url = `https://api.helius.xyz/v0/addresses/${SOLANA_WALLET}/balances?api-key=${HELIUS_API_KEY}`;
 
       try {
         const res = await fetch(url);
         const data = await res.json();
         debug("Antwort erhalten.");
+
         const token = data.tokens.find(t => t.mint === PYUSD_MINT);
 
         if (token) {
@@ -95,6 +134,8 @@
       }, 3000);
     }
 
+    // Starte Initialisierung
+    updateDisplay();
     fetchSolanaPYUSDBalance();
     setInterval(fetchSolanaPYUSDBalance, 60000);
   </script>
