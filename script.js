@@ -27,9 +27,9 @@ async function fetchSolPrice() {
 
 async function fetchPurpePrice() {
   try {
-    const res = await fetch("https://price.jup.ag/v4/price?ids=PURPE"); // Symbol statt Mint
+    const res = await fetch(`https://quote-api.jup.ag/v6/price?ids=${purpeMint}`);
     const data = await res.json();
-    const price = data.data?.PURPE?.price;
+    const price = data.data?.[purpeMint]?.price;
     return price ? parseFloat(price) : fallbackPurpePrice;
   } catch {
     return fallbackPurpePrice;
@@ -89,4 +89,4 @@ function updateDisplay() {
 }
 
 document.addEventListener('DOMContentLoaded', fetchWalletData);
-setInterval(fetchWalletData, 60000); // Aktualisierung alle 60 Sekunden
+setInterval(fetchWalletData, 60000); // Update alle 60 Sekunden
