@@ -1,109 +1,81 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Donation Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="background"></div>
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Orbitron', sans-serif;
+  color: white;
+  text-align: center;
+  height: 100%;
+  overflow: hidden;
+}
 
-  <div class="container">
-    <div class="title pulse">Live Donation Tracker</div>
+.background {
+  background: url('pepe_background.png') no-repeat center center fixed;
+  background-size: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: float 10s ease-in-out infinite;
+  z-index: -1;
+}
 
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress-fill"></div>
-    </div>
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
 
-    <div class="amounts">
-      <span id="current-amount">$0.00</span>
-      <span id="goal-amount">$20000.00</span>
-    </div>
+.container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 600px;
+}
 
-    <div class="info-box" id="info-box">
-      <p>Purple Pepe is becoming a legend –<br> this wallet is the fuel.</p>
-      <p>Your donation powers our journey to the world's biggest exchanges.</p>
-      <p id="breakdown">
-        SOL: $0.00<br>
-        PURPE: $0.00<br>
-        PYUSD: $0.00
-      </p>
-    </div>
-  </div>
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
 
-  <!-- Debug Box -->
-  <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:120px;
-    overflow:auto;background:black;color:#0f0;font-family:monospace;font-size:11px;
-    padding:5px;z-index:9999;opacity:0.9;"></div>
+.progress-bar {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  height: 20px;
+  margin-bottom: 10px;
+}
 
-  <script>
-    const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const PYUSD_MINT = "DbvNRGUYMTmfpyRxQL6iJWADCyP2KkCMNaiqWYLBvMYg";  // KORREKT laut deinem Wallet
-    const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-    const GOAL = 20000;
+.progress-fill {
+  background: linear-gradient(to right, cyan, purple);
+  height: 100%;
+  width: 0%;
+  transition: width 1s ease-in-out;
+}
 
-    const donations = {
-      SOL: 0,
-      PURPE: 0,
-      PYUSD: 0
-    };
+.amounts {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-weight: bold;
+  font-size: 18px;
+}
 
-    const debug = (msg) => {
-      const box = document.getElementById("debug-box");
-      const p = document.createElement("div");
-      p.textContent = `[DEBUG] ${msg}`;
-      box.appendChild(p);
-      box.scrollTop = box.scrollHeight;
-    };
+.info-box {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 14px;
+}
 
-    function updateDisplay() {
-      const total = donations.SOL + donations.PURPE + donations.PYUSD;
-      const progress = Math.min((total / GOAL) * 100, 100).toFixed(2);
+.pulse {
+  animation: pulseAnimation 2s infinite;
+}
 
-      document.getElementById("current-amount").textContent = `$${total.toFixed(2)}`;
-      document.getElementById("goal-amount").textContent = `$${GOAL.toFixed(2)}`;
-      document.getElementById("progress-fill").style.width = `${progress}%`;
-
-      document.getElementById("breakdown").innerHTML = `
-        SOL: $${donations.SOL.toFixed(2)}<br>
-        PURPE: $${donations.PURPE.toFixed(2)}<br>
-        PYUSD: $${donations.PYUSD.toFixed(2)}
-      `;
-    }
-
-    async function fetchDonations() {
-      debug("API-Abfrage gestartet…");
-      const url = `https://api.helius.xyz/v0/addresses/${WALLET}/balances?api-key=${API_KEY}`;
-
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        debug("Antwort erhalten.");
-
-        donations.SOL = (data.nativeBalance?.solana || 0) * 137; // Umrechnung in $
-        
-        data.tokens.forEach(token => {
-          const amount = token.amount / Math.pow(10, token.decimals);
-          if (token.mint === PYUSD_MINT) {
-            donations.PYUSD = amount;
-          } else if (token.tokenSymbol?.toUpperCase() === "PURPE") {
-            const price = token.tokenPrice?.usd || 0;
-            donations.PURPE = amount * price;
-          }
-        });
-
-        updateDisplay();
-
-      } catch (err) {
-        debug("API-Fehler: " + err.message);
-      }
-    }
-
-    fetchDonations();
-    setInterval(fetchDonations, 60000);
-  </script>
-
-</body>
-</html>
+@keyframes pulseAnimation {
+  0% { text-shadow: 0 0 10px white; }
+  50% { text-shadow: 0 0 20px purple; }
+  100% { text-shadow: 0 0 10px white; }
+}
