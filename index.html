@@ -34,13 +34,13 @@
   </div>
 
   <!-- Debug Box -->
-  <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:100px;
+  <div id="debug-box" style="position:fixed;bottom:0;left:0;width:100%;max-height:120px;
     overflow:auto;background:black;color:#0f0;font-family:monospace;font-size:11px;
     padding:5px;z-index:9999;opacity:0.9;"></div>
 
   <script>
     const WALLET = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
+    const PYUSD_MINT = "DbvNRGUYMTmfpyRxQL6iJWADCyP2KkCMNaiqWYLBvMYg";  // KORREKT laut deinem Wallet
     const API_KEY = "2e046356-0f0c-4880-93cc-6d5467e81c73";
     const GOAL = 20000;
 
@@ -82,14 +82,15 @@
         const data = await res.json();
         debug("Antwort erhalten.");
 
-        donations.SOL = data.nativeBalance?.solana || 0;
-
+        donations.SOL = (data.nativeBalance?.solana || 0) * 137; // Umrechnung in $
+        
         data.tokens.forEach(token => {
           const amount = token.amount / Math.pow(10, token.decimals);
           if (token.mint === PYUSD_MINT) {
             donations.PYUSD = amount;
           } else if (token.tokenSymbol?.toUpperCase() === "PURPE") {
-            donations.PURPE = amount * (token.tokenPrice?.usd || 0);
+            const price = token.tokenPrice?.usd || 0;
+            donations.PURPE = amount * price;
           }
         });
 
