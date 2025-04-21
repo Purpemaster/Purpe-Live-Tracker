@@ -1,46 +1,81 @@
-// Simulierte Daten – wird manuell gesetzt
-const donations = {
-  SOL: 1383.12,
-  PURPE: 2774.50,
-  PYUSD: 545.00 // <-- hier dein manueller Wert
-};
-
-const goal = 20000;
-
-function formatAmount(amount) {
-  return `$${amount.toFixed(2)}`;
+body {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  background-color: #121212;
+  color: #fff;
 }
 
-function updateDisplay() {
-  const total = donations.SOL + donations.PURPE + donations.PYUSD;
-  const progressPercent = Math.min((total / goal) * 100, 100);
-
-  // Fortschrittsbalken aktualisieren
-  const progressFill = document.querySelector('.progress-fill');
-  if (progressFill) {
-    progressFill.style.width = `${progressPercent}%`;
-  }
-
-  // Beträge aktualisieren
-  const amounts = document.querySelectorAll('.amounts span');
-  if (amounts.length >= 2) {
-    amounts[0].textContent = formatAmount(total);
-    amounts[1].textContent = formatAmount(goal);
-  }
-
-  // Info-Box aktualisieren
-  const infoBox = document.querySelector('.info-box');
-  if (infoBox) {
-    infoBox.innerHTML = `
-      <p>Purple Pepe is becoming a legend –<br> this wallet is the fuel.</p>
-      <p>Your donation powers our journey to the world's biggest exchanges.</p>
-      <p>
-        SOL: ${formatAmount(donations.SOL)}<br>
-        PURPE: ${formatAmount(donations.PURPE)}<br>
-        PYUSD: ${formatAmount(donations.PYUSD)}
-      </p>
-    `;
-  }
+.background {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-image: url('dein_pepe_background.png');
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
 }
 
-document.addEventListener('DOMContentLoaded', updateDisplay);
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.title {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.progress-fill {
+  height: 20px;
+  width: 0;
+  background: linear-gradient(to right, cyan, magenta);
+  transition: width 0.5s ease-in-out;
+}
+
+.amounts {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.info-box {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 15px;
+  border-radius: 5px;
+}
+
+#debug-box {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-height: 100px;
+  overflow: auto;
+  background: black;
+  color: #0f0;
+  font-family: monospace;
+  font-size: 11px;
+  padding: 5px;
+  z-index: 9999;
+  opacity: 0.9;
+}ü
