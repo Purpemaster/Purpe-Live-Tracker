@@ -27,13 +27,10 @@ async function fetchSolPrice() {
 
 async function fetchPurpePrice() {
   try {
-    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/" + purpeMint);
+    const res = await fetch(`https://price.jup.ag/v4/price?ids=${purpeMint}`);
     const data = await res.json();
-    if (data.pairs && data.pairs.length > 0) {
-      const priceUsd = parseFloat(data.pairs[0].priceUsd);
-      return isNaN(priceUsd) ? fallbackPurpePrice : priceUsd;
-    }
-    return fallbackPurpePrice;
+    const price = data.data?.[purpeMint]?.price;
+    return price ? parseFloat(price) : fallbackPurpePrice;
   } catch {
     return fallbackPurpePrice;
   }
@@ -92,4 +89,4 @@ function updateDisplay() {
 }
 
 document.addEventListener('DOMContentLoaded', fetchWalletData);
-setInterval(fetchWalletData, 60000); // Refresh alle 60 Sekunden
+setInterval(fetchWalletData, 60000); // Aktualisierung alle 60 Sekunden
