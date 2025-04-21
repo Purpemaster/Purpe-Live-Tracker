@@ -16,7 +16,7 @@ body {
   color: #fff;
   overflow: hidden;
   text-align: center;
-  padding-top: 50vh;
+  padding-top: 18vh;
 }
 
 @keyframes backgroundFloat {
@@ -25,7 +25,7 @@ body {
     transform: scale(1);
   }
   50% {
-    background-position-y: 2%;
+    background-position-y: 3%;
     transform: scale(1.015);
   }
   100% {
@@ -40,43 +40,40 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
-/* Pulsierende Überschrift */
+/* Überschrift */
 .title {
-  font-size: 3rem;
+  font-size: 3.2rem;
   font-weight: bold;
   color: white;
   text-shadow:
-    0 0 5px #fff,
-    0 0 10px #ff00ff,
-    0 0 20px #ff00ff,
-    0 0 40px #ff00ff;
-  animation: pulseGlow 2.5s infinite ease-in-out;
+    0 0 8px rgba(255, 255, 255, 0.7),
+    0 0 12px rgba(255, 255, 255, 0.5),
+    0 0 18px rgba(150, 0, 255, 0.4),
+    0 0 30px rgba(150, 0, 255, 0.3);
+  animation: pulseTitle 2.8s infinite ease-in-out;
 }
 
-@keyframes pulseGlow {
+@keyframes pulseTitle {
   0% {
     text-shadow:
-      0 0 5px #fff,
-      0 0 10px #ff00ff,
-      0 0 20px #ff00ff,
-      0 0 40px #ff00ff;
+      0 0 5px rgba(255, 255, 255, 0.5),
+      0 0 10px rgba(150, 0, 255, 0.3),
+      0 0 15px rgba(150, 0, 255, 0.2);
   }
   50% {
     text-shadow:
-      0 0 10px #fff,
-      0 0 20px #cc00cc,
-      0 0 30px #cc00cc,
-      0 0 60px #cc00cc;
+      0 0 10px rgba(255, 255, 255, 0.8),
+      0 0 18px rgba(150, 0, 255, 0.4),
+      0 0 30px rgba(150, 0, 255, 0.3);
   }
   100% {
     text-shadow:
-      0 0 5px #fff,
-      0 0 10px #ff00ff,
-      0 0 20px #ff00ff,
-      0 0 40px #ff00ff;
+      0 0 5px rgba(255, 255, 255, 0.5),
+      0 0 10px rgba(150, 0, 255, 0.3),
+      0 0 15px rgba(150, 0, 255, 0.2);
   }
 }
 
@@ -84,10 +81,10 @@ body {
 .progress-bar {
   width: 100%;
   height: 20px;
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 0 10px #00ffff80;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
 .progress-fill {
@@ -102,38 +99,42 @@ body {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: bold;
   color: white;
   text-shadow: 0 0 3px #000;
 }
 
-/* Der Info-Block */
+/* Info-Box */
 .info-box {
   width: 100%;
-  margin-top: 20px;
-  background: rgba(0, 0, 0, 0.4);
+  margin-top: 30px;
+  background: rgba(0, 0, 0, 0.35);
   border-radius: 20px;
-  padding: 20px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  padding: 22px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .info-box p {
-  font-size: 1.1rem;
-  line-height: 1.5;
-  margin-bottom: 8px;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin-bottom: 10px;
   color: white;
   text-shadow: 0 0 2px black;
 }
 
+/* Responsive */
 @media screen and (max-width: 768px) {
   .title {
-    font-size: 2.3rem;
+    font-size: 2.4rem;
   }
 
   .amounts {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .info-box p {
