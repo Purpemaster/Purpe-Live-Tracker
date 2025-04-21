@@ -6,6 +6,7 @@ body, html {
   text-align: center;
   height: 100%;
   overflow: hidden;
+  background-color: black;
 }
 
 .background {
@@ -77,5 +78,4 @@ body, html {
 @keyframes pulseAnimation {
   0% { text-shadow: 0 0 10px white; }
   50% { text-shadow: 0 0 20px purple; }
-  100% { text-shadow: 0 0 10px white; }
-}
+  100% { text-shadow: 0 0 10 
