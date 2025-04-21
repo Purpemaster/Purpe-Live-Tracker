@@ -1,83 +1,93 @@
+/* Allgemeine Grundstruktur */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Orbitron', sans-serif;
-  color: #ffffff;
   background: url('pepe_background.png') no-repeat center center fixed;
   background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  overflow-x: hidden;
+  color: white;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
-  height: 100vh;
-  overflow: hidden;
 }
 
+/* Container für alles */
 .container {
   width: 90%;
   max-width: 700px;
-  margin-top: 5vh;
+  margin-bottom: 5vh;
   text-align: center;
   z-index: 2;
 }
 
+/* Titel mit Neon-Effekt */
 .title {
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: bold;
   color: #fff;
-  animation: neon-pulse 1.5s ease-in-out infinite alternate;
+  animation: neon-pulse 1.8s ease-in-out infinite alternate;
   margin-bottom: 1rem;
 }
 
 @keyframes neon-pulse {
   from {
-    text-shadow: 0 0 8px #f0f, 0 0 16px #f0f;
+    text-shadow: 0 0 10px #f0f, 0 0 20px #0ff;
   }
   to {
-    text-shadow: 0 0 20px #f0f, 0 0 35px #0ff;
+    text-shadow: 0 0 20px #f0f, 0 0 40px #0ff;
   }
 }
 
+/* Fortschrittsanzeige */
 .progress-bar {
   width: 100%;
   height: 20px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
   overflow: hidden;
   margin-bottom: 1rem;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #00f0ff, #f000ff);
-  transition: width 0.3s ease-in-out;
+  transition: width 0.4s ease-in-out;
 }
 
+/* Beträge */
 .amounts {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2rem;
   font-size: 1.2rem;
   font-weight: bold;
+  margin-bottom: 2rem;
+  text-shadow: 0 0 4px rgba(0,0,0,0.6);
 }
 
+/* Der schwebende Info-Block */
 .info-box {
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  padding: 1.5rem;
-  border-radius: 16px;
-  font-size: 1rem;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-  position: absolute;
-  bottom: 5vh;
-  width: 90%;
+  border-radius: 20px;
+  padding: 1.8rem;
   max-width: 700px;
+  width: 90%;
+  margin: 0 auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
   text-align: center;
+  position: relative;
 }
 
 .info-box p {
-  margin: 0.5rem 0;
-  color: #fff;
-  line-height: 1.5;
+  margin: 0.7rem 0;
+  color: #ffffff;
+  font-size: 1.05rem;
+  line-height: 1.6;
 }
