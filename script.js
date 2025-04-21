@@ -1,5 +1,5 @@
 const donations = {
-  SOL: 1383.12,
+  SOL: 1385.28,
   PURPE: 2774.50,
   PYUSD: 545.00
 };
@@ -19,15 +19,17 @@ function updateDisplay() {
     progressFill.style.width = `${progressPercent}%`;
   }
 
-  const amounts = document.querySelectorAll('.amounts span');
-  if (amounts.length >= 2) {
-    amounts[0].textContent = formatAmount(total);
-    amounts[1].textContent = formatAmount(goal);
+  const currentAmount = document.querySelector('#current-amount');
+  const goalAmount = document.querySelector('#goal-amount');
+
+  if (currentAmount && goalAmount) {
+    currentAmount.textContent = formatAmount(total);
+    goalAmount.textContent = formatAmount(goal);
   }
 
-  const infoBox = document.getElementById('breakdown');
-  if (infoBox) {
-    infoBox.innerHTML = `
+  const breakdownBox = document.getElementById('breakdown');
+  if (breakdownBox) {
+    breakdownBox.innerHTML = `
       SOL: ${formatAmount(donations.SOL)}<br>
       PURPE: ${formatAmount(donations.PURPE)}<br>
       PYUSD: ${formatAmount(donations.PYUSD)}
