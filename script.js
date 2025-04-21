@@ -27,9 +27,9 @@ async function fetchSolPrice() {
 
 async function fetchPurpePrice() {
   try {
-    const res = await fetch(`https://price.jup.ag/v4/price?ids=${purpeMint}`);
+    const res = await fetch("https://price.jup.ag/v4/price?ids=PURPE"); // Symbol statt Mint
     const data = await res.json();
-    const price = data.data?.[purpeMint]?.price;
+    const price = data.data?.PURPE?.price;
     return price ? parseFloat(price) : fallbackPurpePrice;
   } catch {
     return fallbackPurpePrice;
