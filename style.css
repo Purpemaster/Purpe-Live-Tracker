@@ -1,4 +1,3 @@
-/* Allgemeine Grundstruktur */
 body {
   margin: 0;
   padding: 0;
@@ -12,38 +11,37 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
 }
 
-/* Container für alles */
 .container {
   width: 90%;
-  max-width: 700px;
-  margin-bottom: 5vh;
+  max-width: 800px;
+  margin-top: 12vh;
   text-align: center;
   z-index: 2;
 }
 
-/* Titel mit Neon-Effekt */
+/* Überschrift */
 .title {
-  font-size: 3rem;
+  font-size: 3.2rem;
   font-weight: bold;
   color: #fff;
-  animation: neon-pulse 1.8s ease-in-out infinite alternate;
-  margin-bottom: 1rem;
+  animation: neon-pulse 1.5s ease-in-out infinite alternate;
+  margin-bottom: 1.2rem;
 }
 
 @keyframes neon-pulse {
   from {
-    text-shadow: 0 0 10px #f0f, 0 0 20px #0ff;
+    text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
   }
   to {
-    text-shadow: 0 0 20px #f0f, 0 0 40px #0ff;
+    text-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
   }
 }
 
-/* Fortschrittsanzeige */
+/* Fortschrittsbalken */
 .progress-bar {
   width: 100%;
   height: 20px;
@@ -60,34 +58,33 @@ body {
   transition: width 0.4s ease-in-out;
 }
 
-/* Beträge */
 .amounts {
   display: flex;
   justify-content: space-between;
   font-size: 1.2rem;
   font-weight: bold;
-  margin-bottom: 2rem;
-  text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  margin-bottom: 3rem;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
 }
 
-/* Der schwebende Info-Block */
+/* Der Textblock unten */
 .info-box {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   padding: 1.8rem;
   max-width: 700px;
-  width: 90%;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0 auto 5vh auto;
   box-shadow: 0 0 15px rgba(0,0,0,0.3);
   text-align: center;
   position: relative;
 }
 
 .info-box p {
-  margin: 0.7rem 0;
+  margin: 0.8rem 0;
   color: #ffffff;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   line-height: 1.6;
 }
