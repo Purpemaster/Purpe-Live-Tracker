@@ -1,68 +1,38 @@
-const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const goalUSD = 20000;
+const donations = {
+  SOL: 1383.12,
+  PURPE: 2774.50,
+  PYUSD: 545.00
+};
 
-const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-const fallbackPricePurpe = 0.0000373;
-const pyusdManualValue = 0.00; // Hier deinen festen PYUSD-Wert setzen
+const goal = 20000;
 
-async function fetchSolPrice() {
-  try {
-    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
-    const data = await res.json();
-    return data.solana?.usd || 0;
-  } catch {
-    return 0;
-  }
+function formatAmount(amount) {
+  return `$${amount.toFixed(2)}`;
 }
 
-async function fetchPurpePrice() {
-  try {
-    const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${purpeMint}`);
-    const data = await response.json();
-    return parseFloat(data.pairs?.[0]?.priceUsd) || fallbackPricePurpe;
-  } catch {
-    return fallbackPricePurpe;
+function updateDisplay() {
+  const total = donations.SOL + donations.PURPE + donations.PYUSD;
+  const progressPercent = Math.min((total / goal) * 100, 100);
+
+  const progressFill = document.querySelector('.progress-fill');
+  if (progressFill) {
+    progressFill.style.width = `${progressPercent}%`;
   }
-}
 
-async function fetchWalletBalance() {
-  try {
-    const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
-    const data = await res.json();
+  const amounts = document.querySelectorAll('.amounts span');
+  if (amounts.length >= 2) {
+    amounts[0].textContent = formatAmount(total);
+    amounts[1].textContent = formatAmount(goal);
+  }
 
-    const tokens = data.tokens || [];
-    const sol = (data.nativeBalance || 0) / 1_000_000_000;
-    const solPrice = await fetchSolPrice();
-    const solUSD = sol * solPrice;
-
-    let purpeUSD = 0;
-    for (const token of tokens) {
-      const mint = token.mint;
-      const amount = token.amount / Math.pow(10, token.decimals || 6);
-      if (mint === purpeMint) {
-        const purpePrice = await fetchPurpePrice();
-        purpeUSD = amount * purpePrice;
-      }
-    }
-
-    const totalUSD = solUSD + purpeUSD + pyusdManualValue;
-    const percent = Math.min((totalUSD / goalUSD) * 100, 100);
-
-    document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
-    document.getElementById("goal-amount").textContent = `$${goalUSD.toFixed(2)}`;
-    document.getElementById("progress-fill").style.width = `${percent}%`;
-
-    document.getElementById("breakdown").innerHTML = `
-      SOL: $${solUSD.toFixed(2)}<br>
-      PURPE: $${purpeUSD.toFixed(2)}<br>
-      PYUSD: $${pyusdManualValue.toFixed(2)}
+  const infoBox = document.getElementById('breakdown');
+  if (infoBox) {
+    infoBox.innerHTML = `
+      SOL: ${formatAmount(donations.SOL)}<br>
+      PURPE: ${formatAmount(donations.PURPE)}<br>
+      PYUSD: ${formatAmount(donations.PYUSD)}
     `;
-
-  } catch (err) {
-    console.error("Wallet-Abfrage fehlgeschlagen:", err);
   }
 }
 
-fetchWalletBalance();
-setInterval(fetchWalletBalance, 60000);
+document.addEventListener('DOMContentLoaded', updateDisplay);
