@@ -1,88 +1,49 @@
 const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const goalUSD = 20000;
+const goal = 20000;
 
-const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-const fallbackPricePurpe = 0.0000373;
+const TARGET_TOKENS = {
+  SOL: { name: "SOL", price: 100 },
+  PURPE: { name: "PURPE", price: 0.05 },
+  PYUSD: { name: "PYUSD", price: 1 }
+};
 
-// Preis von SOL in USD von CoinGecko
-async function fetchSolPrice() {
+async function fetchBalances() {
   try {
-    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
-    const data = await res.json();
-    return data.solana?.usd || 0;
-  } catch (err) {
-    console.error("Fehler bei SOL-Preisabfrage:", err);
-    return 0;
-  }
-}
+    const response = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
+    const data = await response.json();
 
-// Preis von PURPE in USD von Birdeye
-async function fetchPurpePrice() {
-  try {
-    const res = await fetch(`https://public-api.birdeye.so/public/price?address=${purpeMint}`);
-    const data = await res.json();
-    const price = parseFloat(data.data?.value || data.data?.price);
-    return isNaN(price) ? fallbackPricePurpe : price;
-  } catch (err) {
-    console.error("Fehler bei der PURPE-Preisabfrage über Birdeye:", err);
-    return fallbackPricePurpe;
-  }
-}
+    const sol = data.nativeBalance / 1e9;
+    const tokenBalances = data.tokens || [];
 
-// Hauptfunktion zur Wallet-Abfrage und Anzeige
-async function fetchWalletBalance() {
-  try {
-    const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
-    const data = await res.json();
+    let totals = {
+      SOL: sol * TARGET_TOKENS.SOL.price,
+      PURPE: 0,
+      PYUSD: 0
+    };
 
-    const tokens = data.tokens || [];
-    const lamports = data.nativeBalance || 0;
-    const sol = lamports / 1_000_000_000;
-
-    // Preise holen (einmal pro Lauf, nicht in der Schleife wie ein Amateur)
-    const [solPrice, purpePrice] = await Promise.all([
-      fetchSolPrice(),
-      fetchPurpePrice()
-    ]);
-
-    const solUSD = sol * solPrice;
-    let purpeUSD = 0;
-
-    // Token-Liste durchgehen
-    for (const token of tokens) {
-      const mint = token.mint;
-      const decimals = token.decimals > 0 ? token.decimals : 6;
-      const amount = token.amount / 10 ** decimals;
-
-      if (mint === purpeMint) {
-        purpeUSD = amount * purpePrice;
+    tokenBalances.forEach(token => {
+      const tokenName = token.tokenInfo?.name?.toUpperCase();
+      const amount = token.amount / Math.pow(10, token.decimals);
+      if (TARGET_TOKENS[tokenName]) {
+        totals[tokenName] = amount * TARGET_TOKENS[tokenName].price;
       }
-    }
+    });
 
-    const totalUSD = solUSD + purpeUSD;
-    const percent = Math.min((totalUSD / goalUSD) * 100, 100);
+    const total = totals.SOL + totals.PURPE + totals.PYUSD;
+    const percent = Math.min(100, (total / goal) * 100);
 
-    // UI aktualisieren
-    document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
+    document.getElementById("solAmount").innerText = `SOL: $${totals.SOL.toFixed(2)}`;
+    document.getElementById("purpeAmount").innerText = `PURPE: $${totals.PURPE.toFixed(2)}`;
+    document.getElementById("pyusdAmount").innerText = `PYUSD: $${totals.PYUSD.toFixed(2)}`;
+    document.getElementById("totalAmount").innerText = `Total: $${total.toFixed(2)}`;
     document.getElementById("progress-bar").style.width = `${percent}%`;
+    document.getElementById("progress-bar").innerText = `${percent.toFixed(1)}%`;
 
-    const breakdownEl = document.getElementById("token-breakdown");
-    if (breakdownEl) {
-      breakdownEl.innerHTML = `
-        • SOL: $${solUSD.toFixed(2)}<br>
-        • PURPE: $${purpeUSD.toFixed(2)}
-      `;
-    }
-
-    // Debug
-    console.log(`[Live Update] Gesamtwert: $${totalUSD.toFixed(2)} (SOL: $${solUSD.toFixed(2)}, PURPE: $${purpeUSD.toFixed(2)})`);
-
-  } catch (err) {
-    console.error("Fehler beim Wallet-Abgleich:", err);
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Daten:", error);
   }
 }
 
-// Initial ausführen & regelmäßig aktualisieren
-fetchWalletBalance();
-setInterval(fetchWalletBalance, 60000);
+fetchBalances();
+setInterval(fetchBalances, 60000);
