@@ -1,70 +1,79 @@
-body {
-  margin: 0;
-  font-family: 'Orbitron', sans-serif;
-  color: #fff;
-  background-color: #000;
-  overflow: hidden;
-}
-
+/* Hintergrund bleibt */
 .background {
   background-image: url('pepe_background.png');
   background-size: cover;
   background-position: center;
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: -1;
-  filter: brightness(0.85);
-}
-
-.container {
-  text-align: center;
-  padding: 2rem;
-}
-
-.title {
-  font-size: 2.5rem;
-  color: #fff;
-  text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff; }
-  50% { text-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff; }
-  100% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff; }
-}
-
-.progress-bar {
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 600px;
-  height: 20px;
-  background-color: #333;
-  margin: 20px auto;
-  border-radius: 10px;
-  overflow: hidden;
+  height: 100%;
+  z-index: -1;
+  animation: zoomPan 60s infinite linear;
+  filter: brightness(1.05) contrast(1.2);
 }
 
+/* Zoom-Effekt für Raumgefühl */
+@keyframes zoomPan {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.05) translate(1%, 1%); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+
+/* Titel mit WOW-Faktor */
+.title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff, 0 0 30px #00ffff;
+  animation: neonPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes neonPulse {
+  0%, 100% { text-shadow: 0 0 15px #00ffff, 0 0 30px #ff00ff; }
+  50% { text-shadow: 0 0 35px #ff00ff, 0 0 50px #00ffff; }
+}
+
+/* Glassmorph Box */
+.info-box {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.2);
+  font-size: 1.1rem;
+}
+
+/* Fortschrittsbalken */
 .progress-fill {
   height: 100%;
-  width: 0%;
-  background: linear-gradient(to right, cyan, magenta);
-  transition: width 0.4s ease;
+  background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
+  background-size: 300% 100%;
+  animation: gradientShift 4s ease infinite;
 }
 
-.amounts {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px auto;
-  max-width: 600px;
-  font-size: 1.2rem;
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.info-box {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 10px;
-  padding: 1rem;
-  max-width: 600px;
-  margin: 20px auto;
-  font-size: 1rem;
+/* Spendenbutton für später */
+button.donate {
+  background: linear-gradient(to right, #00ffff, #ff00ff);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 24px;
+  cursor: pointer;
+  box-shadow: 0 0 15px #00ffff;
+  transition: transform 0.3s ease;
+}
+
+button.donate:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px #ff00ff;
 }
