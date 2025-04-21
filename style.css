@@ -1,4 +1,4 @@
-/* === Basic Reset === */
+/* Grundlegendes Reset */
 * {
   margin: 0;
   padding: 0;
@@ -9,37 +9,46 @@ body {
   font-family: 'Orbitron', sans-serif;
   height: 100vh;
   background: url('pepe_background.png') center center / cover no-repeat fixed;
-  animation: backgroundFloat 12s ease-in-out infinite alternate;
+  animation: backgroundFloat 10s ease-in-out infinite alternate;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   align-items: center;
   overflow: hidden;
   color: #ffffff;
 }
 
-/* === Hintergrund Schwebeeffekt === */
+/* Hintergrund-Schwebeeffekt */
 @keyframes backgroundFloat {
   0% {
     background-position-y: 0%;
   }
   50% {
-    background-position-y: 1.5%;
+    background-position-y: 2%;
   }
   100% {
     background-position-y: 0%;
   }
 }
 
-/* === Title Pulsieren === */
+/* Container */
+.container {
+  width: 90%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5vh;
+}
+
+/* Überschrift mit galaktischem Pulsieren */
 .title {
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: bold;
   color: #ff00ff;
-  text-shadow: 0 0 20px #ff00ff;
-  animation: pulseTitle 2.2s ease-in-out infinite;
-  margin-top: 50px;
+  text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
+  animation: pulseTitle 2s ease-in-out infinite;
   text-align: center;
+  margin-bottom: 20px;
 }
 
 @keyframes pulseTitle {
@@ -48,7 +57,7 @@ body {
     opacity: 1;
   }
   50% {
-    transform: scale(1.06);
+    transform: scale(1.05);
     opacity: 0.85;
   }
   100% {
@@ -57,15 +66,15 @@ body {
   }
 }
 
-/* === Progress Bar === */
+/* Fortschrittsbalken */
 .progress-bar {
-  width: 80%;
-  height: 18px;
+  width: 100%;
+  height: 20px;
   background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  margin: 20px 0;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 0 10px #00ffff55;
+  margin-bottom: 10px;
 }
 
 .progress-fill {
@@ -73,44 +82,42 @@ body {
   width: 0%;
   background: linear-gradient(90deg, #00ffff, #ff00ff);
   transition: width 0.5s ease-in-out;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
-/* === Amounts === */
+/* Beträge */
 .amounts {
   display: flex;
   justify-content: space-between;
-  width: 80%;
+  width: 100%;
   font-size: 1.2rem;
   font-weight: bold;
   color: white;
   text-shadow: 0 0 4px #000;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
-/* === Info Box (unten, schwebend und schön) === */
+/* Info-Box */
 .info-box {
-  width: 90%;
-  max-width: 700px;
+  width: 100%;
   background-color: rgba(0, 0, 0, 0.55);
-  border-radius: 20px;
-  padding: 25px;
-  margin-top: auto;
-  margin-bottom: 30px;
+  border-radius: 15px;
+  padding: 20px;
   text-align: center;
   backdrop-filter: blur(6px);
   box-shadow: 0 0 15px #00000088;
+  margin-bottom: 30px;
 }
 
 .info-box p {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   font-size: 1.1rem;
   color: #ffffff;
   text-shadow: 0 0 2px #000;
   line-height: 1.5;
 }
 
-/* === Responsive Goodness === */
+/* Responsive Anpassungen */
 @media screen and (max-width: 768px) {
   .title {
     font-size: 2.2rem;
