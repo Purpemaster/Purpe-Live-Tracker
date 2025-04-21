@@ -1,78 +1,93 @@
+/* Allgemeine Grundstruktur */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Orbitron', sans-serif;
-  background: url('pepe_background.png') center center / cover no-repeat fixed;
+  background: url('pepe_background.png') no-repeat center center fixed;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  overflow-x: hidden;
+  color: white;
   height: 100vh;
-  overflow: hidden;
   display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  animation: spaceFloat 20s ease-in-out infinite alternate;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
 }
 
-@keyframes spaceFloat {
-  0% {
-    background-position: center center;
-    transform: scale(1);
-  }
-  50% {
-    background-position: 51% 49%;
-    transform: scale(1.02);
-  }
-  100% {
-    background-position: 52% 48%;
-    transform: scale(1);
-  }
-}
-
+/* Container für alles */
 .container {
-  width: 100%;
-  max-width: 600px;
-  padding: 20px;
+  width: 90%;
+  max-width: 700px;
+  margin-bottom: 5vh;
   text-align: center;
-  color: #fff;
+  z-index: 2;
 }
 
+/* Titel mit Neon-Effekt */
 .title {
-  font-size: 2.5em;
-  text-align: center;
-  color: #ff00ff;
-  text-shadow: 0 0 15px #ff00ff;
-  margin-bottom: 20px;
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  animation: neon-pulse 1.8s ease-in-out infinite alternate;
+  margin-bottom: 1rem;
 }
 
+@keyframes neon-pulse {
+  from {
+    text-shadow: 0 0 10px #f0f, 0 0 20px #0ff;
+  }
+  to {
+    text-shadow: 0 0 20px #f0f, 0 0 40px #0ff;
+  }
+}
+
+/* Fortschrittsanzeige */
 .progress-bar {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
-  height: 20px;
   width: 100%;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .progress-fill {
-  background: linear-gradient(to right, cyan, magenta);
   height: 100%;
-  width: 0%;
-  transition: width 0.5s ease;
+  background: linear-gradient(90deg, #00f0ff, #f000ff);
+  transition: width 0.4s ease-in-out;
 }
 
+/* Beträge */
 .amounts {
   display: flex;
   justify-content: space-between;
-  font-size: 1.2em;
-  margin-bottom: 20px;
-  text-shadow: 0 0 5px black;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  text-shadow: 0 0 4px rgba(0,0,0,0.6);
 }
 
+/* Der schwebende Info-Block */
 .info-box {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  padding: 20px;
-  font-size: 1em;
-  text-shadow: 0 0 5px black;
+  padding: 1.8rem;
+  max-width: 700px;
+  width: 90%;
+  margin: 0 auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
+}
+
+.info-box p {
+  margin: 0.7rem 0;
   color: #ffffff;
-  margin-bottom: 30px;
+  font-size: 1.05rem;
+  line-height: 1.6;
 }
