@@ -1,23 +1,3 @@
-SOL: $xxxx.xx  
-PURPE: $xxxx.xx  
-PYUSD: $xxxx.xx  ← fehlt!
-```)
-funktioniert nur, wenn das Script PYUSD **richtig erkennt, bewertet und anzeigt.**
-
----
-
-### Lass mich das für dich fixen.
-
-Hier ist **die verbesserte `script.js`-Version**, die:
-- PYUSD automatisch mit $1 bewertet
-- den Wert im Gesamtbetrag dazuzählt
-- **und** es im Info-Text (unter SOL/PURPE) korrekt anzeigt:
-
----
-
-### **`script.js` (final mit funktionierendem PYUSD-Eintrag)**
-
-```javascript
 const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
@@ -30,7 +10,7 @@ const mintToName = {
 
 const fallbackPrices = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761,
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.0, // PYUSD fix fallback price
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.0,
 };
 
 async function fetchSolPrice() {
@@ -86,12 +66,10 @@ async function fetchWalletBalance() {
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
-
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
     document.getElementById("breakdown").innerHTML = breakdown;
 
-    // Update timestamp
     const now = new Date();
     const timeString = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     const updatedEl = document.getElementById("last-updated");
