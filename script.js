@@ -45,6 +45,9 @@ async function fetchWalletBalance() {
     let totalUSD = solUSD;
     let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
 
+    const debugEl = document.getElementById("debug-log");
+    if (debugEl) debugEl.innerHTML = ""; // Reset
+
     for (const token of tokens) {
       const mint = token.mint;
       const decimals = token.decimals || 6;
@@ -53,6 +56,10 @@ async function fetchWalletBalance() {
 
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
+
+      if (debugEl) {
+        debugEl.innerHTML += `<div>${name}: ${amount.toFixed(2)} × $${price.toFixed(6)} = $${valueUSD.toFixed(2)}</div>`;
+      }
 
       if (valueUSD > 0) {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
