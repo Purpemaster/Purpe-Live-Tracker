@@ -21,10 +21,18 @@ async function fetchPurpePrice() {
   try {
     const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL");
     const data = await res.json();
+
+    if (data && data.pair && data.pair.priceUsd) {
+      const priceUsd = parseFloat(data.pair.priceUsd);
+      return isNaN(priceUsd) ? fallbackPurpePrice : priceUsd;
+    }
+
+    // Fallback wenn neue Struktur:
     if (data.pairs && data.pairs.length > 0) {
       const priceUsd = parseFloat(data.pairs[0].priceUsd);
       return isNaN(priceUsd) ? fallbackPurpePrice : priceUsd;
     }
+
     return fallbackPurpePrice;
   } catch (err) {
     console.error("Fehler bei PURPE-Preisabfrage:", err);
@@ -67,7 +75,6 @@ async function fetchWalletBalance() {
     const totalUSD = solUSD + purpeUSD + pyusdUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
-    // Update DOM
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
 
@@ -85,6 +92,6 @@ async function fetchWalletBalance() {
   }
 }
 
-// Initial call and auto-refresh
+// Start und Intervall
 fetchWalletBalance();
 setInterval(fetchWalletBalance, 60000);
