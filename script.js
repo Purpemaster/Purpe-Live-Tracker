@@ -9,8 +9,7 @@ const mintToName = {
 };
 
 const fallbackPrices = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003772,
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00,
 };
 
 async function fetchSolPrice() {
@@ -25,14 +24,15 @@ async function fetchSolPrice() {
 
 async function fetchTokenPrice(mint) {
   if (fallbackPrices[mint]) return fallbackPrices[mint];
+
   try {
     const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mint}`, {
-      headers: { "X-API-KEY": birdeyeApiKey }
+      headers: { "X-API-KEY": birdeyeApiKey },
     });
     const data = await res.json();
-    return data.data?.value || fallbackPrices[mint] || 0;
+    return data.data?.value || 0;
   } catch {
-    return fallbackPrices[mint] || 0;
+    return 0;
   }
 }
 
@@ -52,13 +52,13 @@ async function fetchWalletBalance() {
 
     for (const token of tokens) {
       const mint = token.mint;
+      const name = mintToName[mint];
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
-      const name = mintToName[mint] || mint.slice(0, 4) + "...";
-      const price = mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo" ? 1.00 : await fetchTokenPrice(mint);
+      const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
 
-      if (valueUSD > 0) {
+      if (name === "PURPE" || name === "PYUSD") {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
         totalUSD += valueUSD;
       }
@@ -67,11 +67,14 @@ async function fetchWalletBalance() {
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
-    document.getElementById("breakdown").innerHTML = breakdown;
+
+    const breakdownEl = document.getElementById("breakdown");
+    if (breakdownEl) breakdownEl.innerHTML = breakdown;
 
     const now = new Date();
-    const time = now.toLocaleTimeString();
-    document.getElementById("last-updated").textContent = `Last updated: ${time}`;
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const timestampEl = document.getElementById("last-updated");
+    if (timestampEl) timestampEl.textContent = `Last updated: ${timeStr}`;
   } catch (err) {
     console.error("Error fetching wallet data:", err);
   }
