@@ -6,7 +6,7 @@ const goalUSD = 20000;
 // Optional readable token names
 const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD"
 };
 
 // Optional fallback prices if Birdeye fails
@@ -59,23 +59,34 @@ async function fetchWalletBalance() {
       const mint = token.mint;
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
-      const name = mintToName[mint] || mint.slice(0, 4) + "...";
+
+      const name = (token.tokenInfo?.name || "").toLowerCase();
+      const symbol = (token.tokenInfo?.symbol || "").toLowerCase();
+
+      let readableName = mintToName[mint] || symbol.toUpperCase() || mint.slice(0, 4) + "...";
+
+      // Extra logic to catch wrapped PYUSD or PURPE tokens
+      if (name.includes("paypal") || symbol.includes("pyusd")) {
+        readableName = "PYUSD";
+      }
+      if (name.includes("purple pepe") || symbol === "purpe") {
+        readableName = "PURPE";
+      }
 
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
 
       if (debugEl) {
-        debugEl.innerHTML += `<div>${name}: ${amount.toFixed(2)} × $${price.toFixed(6)} = $${valueUSD.toFixed(2)}</div>`;
+        debugEl.innerHTML += `<div>${readableName}: ${amount.toFixed(2)} × $${price.toFixed(6)} = $${valueUSD.toFixed(2)}</div>`;
       }
 
       if (valueUSD > 0) {
-        breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
+        breakdown += `${readableName}: $${valueUSD.toFixed(2)}<br>`;
         totalUSD += valueUSD;
       }
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
-
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
 
