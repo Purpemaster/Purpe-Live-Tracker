@@ -1,49 +1,79 @@
 const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const goal = 20000;
+const goalUSD = 20000;
 
-const TARGET_TOKENS = {
-  SOL: { name: "SOL", price: 100 },
-  PURPE: { name: "PURPE", price: 0.05 },
-  PYUSD: { name: "PYUSD", price: 1 }
-};
+const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
+const fallbackPricePurpe = 0.0000373;
 
-async function fetchBalances() {
+async function fetchSolPrice() {
   try {
-    const response = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
-    const data = await response.json();
-
-    const sol = data.nativeBalance / 1e9;
-    const tokenBalances = data.tokens || [];
-
-    let totals = {
-      SOL: sol * TARGET_TOKENS.SOL.price,
-      PURPE: 0,
-      PYUSD: 0
-    };
-
-    tokenBalances.forEach(token => {
-      const tokenName = token.tokenInfo?.name?.toUpperCase();
-      const amount = token.amount / Math.pow(10, token.decimals);
-      if (TARGET_TOKENS[tokenName]) {
-        totals[tokenName] = amount * TARGET_TOKENS[tokenName].price;
-      }
-    });
-
-    const total = totals.SOL + totals.PURPE + totals.PYUSD;
-    const percent = Math.min(100, (total / goal) * 100);
-
-    document.getElementById("solAmount").innerText = `SOL: $${totals.SOL.toFixed(2)}`;
-    document.getElementById("purpeAmount").innerText = `PURPE: $${totals.PURPE.toFixed(2)}`;
-    document.getElementById("pyusdAmount").innerText = `PYUSD: $${totals.PYUSD.toFixed(2)}`;
-    document.getElementById("totalAmount").innerText = `Total: $${total.toFixed(2)}`;
-    document.getElementById("progress-bar").style.width = `${percent}%`;
-    document.getElementById("progress-bar").innerText = `${percent.toFixed(1)}%`;
-
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Daten:", error);
+    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+    const data = await res.json();
+    return data.solana?.usd || 0;
+  } catch (err) {
+    console.error("Fehler bei SOL-Preisabfrage:", err);
+    return 0;
   }
 }
 
-fetchBalances();
-setInterval(fetchBalances, 60000);
+async function fetchPurpePrice() {
+  try {
+    const response = await fetch('https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL');
+    const data = await response.json();
+    if (data.pairs && data.pairs.length > 0) {
+      const priceUsd = parseFloat(data.pairs[0].priceUsd);
+      return isNaN(priceUsd) ? fallbackPricePurpe : priceUsd;
+    }
+    return fallbackPricePurpe;
+  } catch (error) {
+    console.error("Fehler bei der PURPE-Preisabfrage:", error);
+    return fallbackPricePurpe;
+  }
+}
+
+async function fetchWalletBalance() {
+  try {
+    const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
+    const data = await res.json();
+
+    const tokens = data.tokens || [];
+    const lamports = data.nativeBalance || 0;
+    const sol = lamports / 1_000_000_000;
+
+    const solPrice = await fetchSolPrice();
+    const solUSD = sol * solPrice;
+
+    let purpeUSD = 0;
+
+    for (const token of tokens) {
+      const mint = token.mint;
+      const decimals = token.decimals && token.decimals > 0 ? token.decimals : 6;
+      const amount = token.amount / 10 ** decimals;
+
+      if (mint === purpeMint) {
+        const purpePrice = await fetchPurpePrice();
+        purpeUSD = amount * purpePrice;
+      }
+    }
+
+    const totalUSD = solUSD + purpeUSD;
+    const percent = Math.min((totalUSD / goalUSD) * 100, 100);
+
+    document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
+    document.getElementById("progress-bar").style.width = `${percent}%`;
+
+    const breakdownEl = document.getElementById("token-breakdown");
+    if (breakdownEl) {
+      breakdownEl.innerHTML = `
+        • SOL: $${solUSD.toFixed(2)}<br>
+        • PURPE: $${purpeUSD.toFixed(2)}
+      `;
+    }
+
+  } catch (err) {
+    console.error("Fehler beim Wallet-Abgleich:", err);
+  }
+}
+
+fetchWalletBalance();
+setInterval(fetchWalletBalance, 60000);
