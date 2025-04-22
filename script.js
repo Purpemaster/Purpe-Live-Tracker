@@ -3,8 +3,8 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-// Map known mints to readable names (optional)
-const knownMints = {
+// Known tokens with exact MINT match
+const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
   "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
 };
@@ -19,23 +19,13 @@ async function fetchSolPrice() {
   }
 }
 
-async function fetchTokenPrice(mintAddress) {
+async function fetchTokenPrice(mint) {
   try {
-    const getPrice = async () => {
-      const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mintAddress}`, {
-        headers: { "X-API-KEY": birdeyeApiKey }
-      });
-      const data = await res.json();
-      return data.data?.value || 0;
-    };
-
-    let price = await getPrice();
-    if (price === 0) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      price = await getPrice();
-    }
-
-    return isNaN(price) ? 0 : price;
+    const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mint}`, {
+      headers: { "X-API-KEY": birdeyeApiKey }
+    });
+    const data = await res.json();
+    return data.data?.value || 0;
   } catch {
     return 0;
   }
@@ -61,7 +51,7 @@ async function fetchWalletBalance() {
       const mint = token.mint;
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
-      const name = knownMints[mint] || token.tokenInfo?.name || mint.slice(0, 4) + "...";
+      const name = mintToName[mint] || mint.slice(0, 4) + "...";
 
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
@@ -82,12 +72,10 @@ async function fetchWalletBalance() {
     document.getElementById("progress-fill").style.width = `${percent}%`;
 
     const breakdownEl = document.getElementById("breakdown");
-    if (breakdownEl) {
-      breakdownEl.innerHTML = breakdown;
-    }
+    if (breakdownEl) breakdownEl.innerHTML = breakdown;
 
   } catch (err) {
-    console.error("Error fetching wallet balance:", err);
+    console.error("Error fetching wallet data:", err);
   }
 }
 
