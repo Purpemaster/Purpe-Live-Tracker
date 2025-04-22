@@ -5,7 +5,12 @@ const goalUSD = 20000;
 
 const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD"
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
+};
+
+const fallbackPrices = {
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003795,
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9997,
 };
 
 async function fetchSolPrice() {
@@ -24,18 +29,10 @@ async function fetchTokenPrice(mint) {
       headers: { "X-API-KEY": birdeyeApiKey }
     });
     const data = await res.json();
-    return data.data?.value || 0;
+    return data.data?.value || fallbackPrices[mint] || 0;
   } catch {
-    return 0;
+    return fallbackPrices[mint] || 0;
   }
-}
-
-function formatTime(date) {
-  return date.toLocaleTimeString('de-DE', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
 }
 
 async function fetchWalletBalance() {
@@ -50,35 +47,32 @@ async function fetchWalletBalance() {
     const solUSD = sol * solPrice;
 
     let totalUSD = solUSD;
-    let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
+    let breakdownHTML = `SOL: $${solUSD.toFixed(2)}<br>`;
 
     for (const token of tokens) {
       const mint = token.mint;
+      if (!(mint in mintToName)) continue;
+
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
-      const name = mintToName[mint] || mint.slice(0, 4) + "...";
-
+      const name = mintToName[mint];
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
 
-      if (valueUSD > 0) {
-        breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
-        totalUSD += valueUSD;
-      }
+      breakdownHTML += `${name}: $${valueUSD.toFixed(2)}<br>`;
+      totalUSD += valueUSD;
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
+    document.getElementById("breakdown").innerHTML = breakdownHTML;
 
-    const breakdownEl = document.getElementById("breakdown");
-    if (breakdownEl) breakdownEl.innerHTML = breakdown;
-
-    const updatedEl = document.getElementById("last-updated");
-    if (updatedEl) updatedEl.textContent = `Last updated: ${formatTime(new Date())}`;
-
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-GB');
+    document.getElementById("last-updated").textContent = `Last updated: ${timeString}`;
   } catch (err) {
-    console.error("Error fetching wallet data:", err);
+    console.error("Error:", err);
   }
 }
 
