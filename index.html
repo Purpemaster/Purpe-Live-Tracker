@@ -6,19 +6,6 @@
   <title>Live Donation Tracker</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <style>
-    #breakdown {
-      margin-top: 10px;
-      font-size: 16px;
-      line-height: 1.4;
-      color: white;
-      word-wrap: break-word;
-    }
-
-    #current-amount {
-      font-weight: bold;
-    }
-  </style>
 </head>
 <body>
   <div class="background"></div>
@@ -35,15 +22,20 @@
       <span id="goal-amount">$20000.00</span>
     </div>
 
+    <!-- NEW: Timestamp below the amounts -->
+    <p id="last-updated" style="color: white; text-align: center; font-size: 12px; margin-top: 5px;">
+      Last updated: ...
+    </p>
+
     <div class="info-box" id="info-box">
-      <p>Purple Pepe is becoming a legend —<br>this wallet is the fuel.</p>
+      <p>Purple Pepe is becoming a legend —<br> this wallet is the fuel.</p>
       <p>Your donation powers our journey to the biggest exchanges in the world.</p>
-      <div id="breakdown">
+      <p id="breakdown">
         SOL: $0.00<br>
-        PURPE: $0.00<br>
-        PYUSD: $0.00
-      </div>
+      </p>
     </div>
+
+    <div id="debug-log" style="color: #fff; font-size: 12px; margin-top: 20px;"></div>
   </div>
 
   <script src="script.js"></script>
