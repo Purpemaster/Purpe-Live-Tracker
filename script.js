@@ -5,12 +5,12 @@ const goalUSD = 20000;
 
 const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD"
 };
 
 const fallbackPrices = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761,
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9998
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761, // PURPE
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9998       // PYUSD
 };
 
 async function fetchSolPrice() {
@@ -29,8 +29,8 @@ async function fetchTokenPrice(mint) {
       headers: { "X-API-KEY": birdeyeApiKey }
     });
     const data = await res.json();
-    const fetched = data.data?.value || 0;
-    return fetched > 0 ? fetched : (fallbackPrices[mint] || 0);
+    const price = data.data?.value || 0;
+    return price > 0 ? price : (fallbackPrices[mint] || 0);
   } catch {
     return fallbackPrices[mint] || 0;
   }
@@ -60,7 +60,7 @@ async function fetchWalletBalance() {
       const valueUSD = amount * price;
 
       if (valueUSD > 0) {
-        breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
+        breakdown += `${name}: $${valueUSD.toFixed(4)}<br>`;
         totalUSD += valueUSD;
       }
     }
@@ -68,14 +68,13 @@ async function fetchWalletBalance() {
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
-
     const breakdownEl = document.getElementById("breakdown");
     if (breakdownEl) breakdownEl.innerHTML = breakdown;
 
   } catch (err) {
-    console.error("Error fetching wallet data:", err);
+    console.error("Wallet fetch error:", err);
   }
 }
 
 fetchWalletBalance();
-setInterval(fetchWalletBalance, 60000);
+setInterval(fetchWalletBalance, 60000);ü
