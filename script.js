@@ -50,20 +50,22 @@ async function fetchWalletBalance() {
     let totalUSD = solUSD;
     let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
 
+    // Always handle PYUSD manually
+    let pyusdToken = tokens.find(t => t.mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo");
+    if (pyusdToken) {
+      const amount = pyusdToken.amount / Math.pow(10, pyusdToken.decimals || 6);
+      const valueUSD = amount * fallbackPrices["2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"];
+      totalUSD += valueUSD;
+      breakdown += `PYUSD: $${valueUSD.toFixed(2)}<br>`;
+    }
+
     for (const token of tokens) {
       const mint = token.mint;
+      if (mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo") continue; // already handled
+
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
       const name = mintToName[mint] || mint.slice(0, 4) + "...";
-
-      if (mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo") {
-        // Fixed price for PYUSD
-        const valueUSD = amount * 1;
-        totalUSD += valueUSD;
-        breakdown += `PYUSD: $${valueUSD.toFixed(2)}<br>`;
-        continue;
-      }
-
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
 
@@ -76,6 +78,7 @@ async function fetchWalletBalance() {
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
+
     const breakdownEl = document.getElementById("breakdown");
     if (breakdownEl) breakdownEl.innerHTML = breakdown;
 
