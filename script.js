@@ -3,16 +3,14 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-// Token-Namen (manuell zugewiesen)
 const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
   "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
 };
 
-// Fallback-Werte
 const fallbackPrices = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761,
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.0,
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761, // PURPE fallback
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00,       // PYUSD fallback
 };
 
 async function fetchSolPrice() {
@@ -80,7 +78,7 @@ async function fetchWalletBalance() {
     if (updatedEl) updatedEl.textContent = `Last updated: ${timeString}`;
 
   } catch (err) {
-    console.error("Error fetching wallet data:", err);
+    console.error("Fehler beim Wallet-Abruf:", err);
   }
 }
 
