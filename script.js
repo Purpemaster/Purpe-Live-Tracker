@@ -3,15 +3,14 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-// Token config
 const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD"
 };
 
 const fallbackPrices = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003772, // PURPE
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.0         // PYUSD (fixed)
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00        // PYUSD
 };
 
 async function fetchSolPrice() {
@@ -25,14 +24,16 @@ async function fetchSolPrice() {
 }
 
 async function fetchTokenPrice(mint) {
-  if (fallbackPrices[mint]) return fallbackPrices[mint]; // force fallback for known tokens
-
   try {
+    // Hardcode PYUSD price
+    if (mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo") return 1.0;
+
     const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mint}`, {
       headers: { "X-API-KEY": birdeyeApiKey }
     });
     const data = await res.json();
-    return data.data?.value || fallbackPrices[mint] || 0;
+    const price = data?.data?.value || 0;
+    return price > 0 ? price : (fallbackPrices[mint] || 0);
   } catch {
     return fallbackPrices[mint] || 0;
   }
@@ -57,27 +58,28 @@ async function fetchWalletBalance() {
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
       const name = mintToName[mint] || mint.slice(0, 4) + "...";
+
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
 
-      if (valueUSD > 0.01) {
+      if (name === "PURPE" || name === "PYUSD") {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
         totalUSD += valueUSD;
       }
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
+
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
     document.getElementById("breakdown").innerHTML = breakdown;
 
-    // Add timestamp
+    // Update timestamp
     const now = new Date();
-    const timeString = now.toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    document.getElementById("last-updated").textContent = `Last updated: ${timeString}`;
-
+    const formattedTime = now.toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById("last-updated").textContent = `Last updated: ${formattedTime}`;
   } catch (err) {
-    console.error("Error:", err);
+    console.error("Error fetching wallet data:", err);
   }
 }
 
