@@ -1,6 +1,5 @@
 const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
 const mintToName = {
@@ -8,9 +7,9 @@ const mintToName = {
   "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
 };
 
-const fallbackPrices = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761, // PURPE fallback
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00,       // PYUSD fallback
+const fixedPrices = {
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761,
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00,
 };
 
 async function fetchSolPrice() {
@@ -20,19 +19,6 @@ async function fetchSolPrice() {
     return data.solana?.usd || 0;
   } catch {
     return 0;
-  }
-}
-
-async function fetchTokenPrice(mint) {
-  try {
-    const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mint}`, {
-      headers: { "X-API-KEY": birdeyeApiKey }
-    });
-    const data = await res.json();
-    const fetched = data.data?.value || 0;
-    return fetched > 0 ? fetched : (fallbackPrices[mint] || 0);
-  } catch {
-    return fallbackPrices[mint] || 0;
   }
 }
 
@@ -56,7 +42,7 @@ async function fetchWalletBalance() {
       const amount = token.amount / Math.pow(10, decimals);
       const name = mintToName[mint] || mint.slice(0, 4) + "...";
 
-      const price = await fetchTokenPrice(mint);
+      const price = fixedPrices[mint] || 0;
       const valueUSD = amount * price;
 
       if (valueUSD > 0) {
@@ -71,7 +57,6 @@ async function fetchWalletBalance() {
     document.getElementById("progress-fill").style.width = `${percent}%`;
     document.getElementById("breakdown").innerHTML = breakdown;
 
-    // Zeitstempel aktualisieren
     const now = new Date();
     const timeString = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     const updatedEl = document.getElementById("last-updated");
