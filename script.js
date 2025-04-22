@@ -3,6 +3,12 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
+// Fixed mapping for known tokens (Birdeye-compatible)
+const knownMints = {
+  PURPE: "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL",
+  PYUSD: "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
+};
+
 async function fetchSolPrice() {
   try {
     const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
@@ -52,10 +58,18 @@ async function fetchWalletBalance() {
     if (debugEl) debugEl.innerHTML = "";
 
     for (const token of tokens) {
-      const mint = token.mint;
+      let mint = token.mint;
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
       const name = token.tokenInfo?.name || mint.slice(0, 4) + "...";
+
+      // Check name or known address
+      if (name.toUpperCase().includes("PURPE")) {
+        mint = knownMints.PURPE;
+      }
+      if (name.toUpperCase().includes("PYUSD")) {
+        mint = knownMints.PYUSD;
+      }
 
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
