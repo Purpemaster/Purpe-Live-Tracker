@@ -1,10 +1,7 @@
 const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
-
-const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-const fallbackPurpePrice = 0.0000373;
-const fixedPyusdPrice = 1.00;
 
 async function fetchSolPrice() {
   try {
@@ -17,26 +14,19 @@ async function fetchSolPrice() {
   }
 }
 
-async function fetchPurpePrice() {
+async function fetchTokenPrice(mintAddress) {
   try {
-    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL");
+    const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mintAddress}`, {
+      headers: {
+        "X-API-KEY": birdeyeApiKey
+      }
+    });
     const data = await res.json();
-
-    if (data && data.pair && data.pair.priceUsd) {
-      const priceUsd = parseFloat(data.pair.priceUsd);
-      return isNaN(priceUsd) ? fallbackPurpePrice : priceUsd;
-    }
-
-    // Fallback wenn neue Struktur:
-    if (data.pairs && data.pairs.length > 0) {
-      const priceUsd = parseFloat(data.pairs[0].priceUsd);
-      return isNaN(priceUsd) ? fallbackPurpePrice : priceUsd;
-    }
-
-    return fallbackPurpePrice;
+    const price = data.data?.value;
+    return isNaN(price) ? 0 : price;
   } catch (err) {
-    console.error("Fehler bei PURPE-Preisabfrage:", err);
-    return fallbackPurpePrice;
+    console.warn(`Preisfehler für Mint ${mintAddress}:`, err);
+    return 0;
   }
 }
 
@@ -50,29 +40,27 @@ async function fetchWalletBalance() {
     const sol = lamports / 1_000_000_000;
 
     const solPrice = await fetchSolPrice();
-    const purpePrice = await fetchPurpePrice();
-
     const solUSD = sol * solPrice;
-    let purpeUSD = 0;
-    let pyusdUSD = 0;
+
+    let totalUSD = solUSD;
+    let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
 
     for (const token of tokens) {
       const mint = token.mint;
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
+      const name = token.tokenInfo?.name || mint.slice(0, 4) + "...";
 
-      const name = token.tokenInfo?.name?.toLowerCase() || "";
+      const price = await fetchTokenPrice(mint);
+      const valueUSD = amount * price;
 
-      if (mint === purpeMint) {
-        purpeUSD = amount * purpePrice;
+      if (valueUSD > 0) {
+        breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
       }
 
-      if (name.includes("paypal") || name.includes("pyusd")) {
-        pyusdUSD = amount * fixedPyusdPrice;
-      }
+      totalUSD += valueUSD;
     }
 
-    const totalUSD = solUSD + purpeUSD + pyusdUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
@@ -80,11 +68,7 @@ async function fetchWalletBalance() {
 
     const breakdownEl = document.getElementById("breakdown");
     if (breakdownEl) {
-      breakdownEl.innerHTML = `
-        SOL: $${solUSD.toFixed(2)}<br>
-        PURPE: $${purpeUSD.toFixed(2)}<br>
-        PYUSD: $${pyusdUSD.toFixed(2)}
-      `;
+      breakdownEl.innerHTML = breakdown;
     }
 
   } catch (err) {
@@ -92,6 +76,5 @@ async function fetchWalletBalance() {
   }
 }
 
-// Start und Intervall
 fetchWalletBalance();
 setInterval(fetchWalletBalance, 60000);
