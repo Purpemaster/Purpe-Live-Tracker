@@ -3,10 +3,14 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-// Tokens you want to track
-const trackedTokens = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": { name: "PURPE", fallbackPrice: 0.00003772 },
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": { name: "PYUSD", fallbackPrice: 0.9997 }
+const mintToName = {
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
+};
+
+const fallbackPrices = {
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761,
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9998
 };
 
 async function fetchSolPrice() {
@@ -19,15 +23,16 @@ async function fetchSolPrice() {
   }
 }
 
-async function fetchTokenPrice(mint, fallback) {
+async function fetchTokenPrice(mint) {
   try {
     const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mint}`, {
       headers: { "X-API-KEY": birdeyeApiKey }
     });
     const data = await res.json();
-    return data.data?.value || fallback;
+    const fetched = data.data?.value || 0;
+    return fetched > 0 ? fetched : (fallbackPrices[mint] || 0);
   } catch {
-    return fallback;
+    return fallbackPrices[mint] || 0;
   }
 }
 
@@ -47,25 +52,28 @@ async function fetchWalletBalance() {
 
     for (const token of tokens) {
       const mint = token.mint;
-      if (!trackedTokens[mint]) continue;
-
-      const { name, fallbackPrice } = trackedTokens[mint];
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
-      const price = await fetchTokenPrice(mint, fallbackPrice);
+      const name = mintToName[mint] || mint.slice(0, 4) + "...";
+
+      const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
 
-      breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
-      totalUSD += valueUSD;
+      if (valueUSD > 0) {
+        breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
+        totalUSD += valueUSD;
+      }
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
-    document.getElementById("breakdown").innerHTML = breakdown;
+
+    const breakdownEl = document.getElementById("breakdown");
+    if (breakdownEl) breakdownEl.innerHTML = breakdown;
 
   } catch (err) {
-    console.error("Balance fetch failed:", err);
+    console.error("Error fetching wallet data:", err);
   }
 }
 
