@@ -3,7 +3,8 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const goalUSD = 20000;
 
 const purpeMint = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-const fallbackPricePurpe = 0.0000373;
+const fallbackPurpePrice = 0.0000373;
+const fixedPyusdPrice = 1.00;
 
 async function fetchSolPrice() {
   try {
@@ -18,16 +19,16 @@ async function fetchSolPrice() {
 
 async function fetchPurpePrice() {
   try {
-    const response = await fetch('https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL');
-    const data = await response.json();
+    const res = await fetch("https://api.dexscreener.com/latest/dex/pairs/solana/HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL");
+    const data = await res.json();
     if (data.pairs && data.pairs.length > 0) {
       const priceUsd = parseFloat(data.pairs[0].priceUsd);
-      return isNaN(priceUsd) ? fallbackPricePurpe : priceUsd;
+      return isNaN(priceUsd) ? fallbackPurpePrice : priceUsd;
     }
-    return fallbackPricePurpe;
-  } catch (error) {
-    console.error("Fehler bei der PURPE-Preisabfrage:", error);
-    return fallbackPricePurpe;
+    return fallbackPurpePrice;
+  } catch (err) {
+    console.error("Fehler bei PURPE-Preisabfrage:", err);
+    return fallbackPurpePrice;
   }
 }
 
@@ -41,32 +42,41 @@ async function fetchWalletBalance() {
     const sol = lamports / 1_000_000_000;
 
     const solPrice = await fetchSolPrice();
-    const solUSD = sol * solPrice;
+    const purpePrice = await fetchPurpePrice();
 
+    const solUSD = sol * solPrice;
     let purpeUSD = 0;
+    let pyusdUSD = 0;
 
     for (const token of tokens) {
       const mint = token.mint;
-      const decimals = token.decimals && token.decimals > 0 ? token.decimals : 6;
-      const amount = token.amount / 10 ** decimals;
+      const decimals = token.decimals || 6;
+      const amount = token.amount / Math.pow(10, decimals);
+
+      const name = token.tokenInfo?.name?.toLowerCase() || "";
 
       if (mint === purpeMint) {
-        const purpePrice = await fetchPurpePrice();
         purpeUSD = amount * purpePrice;
+      }
+
+      if (name.includes("paypal") || name.includes("pyusd")) {
+        pyusdUSD = amount * fixedPyusdPrice;
       }
     }
 
-    const totalUSD = solUSD + purpeUSD;
+    const totalUSD = solUSD + purpeUSD + pyusdUSD;
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
 
-    document.getElementById("raised-amount").textContent = `$${totalUSD.toFixed(2)}`;
-    document.getElementById("progress-bar").style.width = `${percent}%`;
+    // Update DOM
+    document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
+    document.getElementById("progress-fill").style.width = `${percent}%`;
 
-    const breakdownEl = document.getElementById("token-breakdown");
+    const breakdownEl = document.getElementById("breakdown");
     if (breakdownEl) {
       breakdownEl.innerHTML = `
-        • SOL: $${solUSD.toFixed(2)}<br>
-        • PURPE: $${purpeUSD.toFixed(2)}
+        SOL: $${solUSD.toFixed(2)}<br>
+        PURPE: $${purpeUSD.toFixed(2)}<br>
+        PYUSD: $${pyusdUSD.toFixed(2)}
       `;
     }
 
@@ -75,5 +85,6 @@ async function fetchWalletBalance() {
   }
 }
 
+// Initial call and auto-refresh
 fetchWalletBalance();
 setInterval(fetchWalletBalance, 60000);
