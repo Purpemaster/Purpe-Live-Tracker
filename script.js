@@ -1,3 +1,23 @@
+SOL: $xxxx.xx  
+PURPE: $xxxx.xx  
+PYUSD: $xxxx.xx  ← fehlt!
+```)
+funktioniert nur, wenn das Script PYUSD **richtig erkennt, bewertet und anzeigt.**
+
+---
+
+### Lass mich das für dich fixen.
+
+Hier ist **die verbesserte `script.js`-Version**, die:
+- PYUSD automatisch mit $1 bewertet
+- den Wert im Gesamtbetrag dazuzählt
+- **und** es im Info-Text (unter SOL/PURPE) korrekt anzeigt:
+
+---
+
+### **`script.js` (final mit funktionierendem PYUSD-Eintrag)**
+
+```javascript
 const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
@@ -10,7 +30,7 @@ const mintToName = {
 
 const fallbackPrices = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761,
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.0, // PYUSD fix fallback price
 };
 
 async function fetchSolPrice() {
@@ -50,22 +70,12 @@ async function fetchWalletBalance() {
     let totalUSD = solUSD;
     let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
 
-    // Optional: Zeige immer PYUSD, auch wenn Preis fehlt
-    let pyusd = tokens.find(t => t.mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo");
-    if (pyusd) {
-      const amount = pyusd.amount / Math.pow(10, pyusd.decimals || 6);
-      const valueUSD = amount * fallbackPrices["2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"];
-      totalUSD += valueUSD;
-      breakdown += `PYUSD: $${valueUSD.toFixed(2)}<br>`;
-    }
-
     for (const token of tokens) {
       const mint = token.mint;
-      if (mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo") continue; // bereits behandelt
-
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
       const name = mintToName[mint] || mint.slice(0, 4) + "...";
+
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
 
@@ -76,23 +86,19 @@ async function fetchWalletBalance() {
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
+
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
+    document.getElementById("breakdown").innerHTML = breakdown;
 
-    const breakdownEl = document.getElementById("breakdown");
-    if (breakdownEl) breakdownEl.innerHTML = breakdown;
-
+    // Update timestamp
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     const updatedEl = document.getElementById("last-updated");
-    if (updatedEl) {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      updatedEl.textContent = `Last updated: ${timeStr}`;
-    }
+    if (updatedEl) updatedEl.textContent = `Last updated: ${timeString}`;
 
   } catch (err) {
     console.error("Error fetching wallet data:", err);
-    document.getElementById("current-amount").textContent = "$0.00";
-    document.getElementById("breakdown").innerHTML = "Error loading wallet data.";
   }
 }
 
