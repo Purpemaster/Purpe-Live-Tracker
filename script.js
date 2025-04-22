@@ -3,16 +3,14 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-// Optional readable token names
 const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD"
 };
 
-// Optional fallback prices if Birdeye fails
 const fallbackPrices = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761, // PURPE
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9998       // PYUSD
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003772, // PURPE
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9997       // PYUSD
 };
 
 async function fetchSolPrice() {
@@ -59,20 +57,20 @@ async function fetchWalletBalance() {
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
       const name = mintToName[mint] || mint.slice(0, 4) + "...";
-
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
-
-      breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
-      totalUSD += valueUSD;
 
       if (debugEl) {
         debugEl.innerHTML += `<div>${name}: ${amount.toFixed(2)} × $${price.toFixed(6)} = $${valueUSD.toFixed(2)}</div>`;
       }
+
+      if (valueUSD > 0 && mintToName[mint]) {
+        breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
+        totalUSD += valueUSD;
+      }
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
-
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
 
