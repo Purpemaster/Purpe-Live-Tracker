@@ -1,17 +1,12 @@
- const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-// Nur diese Tokens sollen angezeigt werden
-const trackedMints = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD"
-};
-
-const fallbackPrices = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003772, // PURPE
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9997       // PYUSD
+// Tokens you want to track
+const trackedTokens = {
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": { name: "PURPE", fallbackPrice: 0.00003772 },
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": { name: "PYUSD", fallbackPrice: 0.9997 }
 };
 
 async function fetchSolPrice() {
@@ -24,16 +19,15 @@ async function fetchSolPrice() {
   }
 }
 
-async function fetchTokenPrice(mint) {
+async function fetchTokenPrice(mint, fallback) {
   try {
     const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mint}`, {
       headers: { "X-API-KEY": birdeyeApiKey }
     });
     const data = await res.json();
-    const price = data.data?.value || 0;
-    return price > 0 ? price : (fallbackPrices[mint] || 0);
+    return data.data?.value || fallback;
   } catch {
-    return fallbackPrices[mint] || 0;
+    return fallback;
   }
 }
 
@@ -51,36 +45,27 @@ async function fetchWalletBalance() {
     let totalUSD = solUSD;
     let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
 
-    const debugEl = document.getElementById("debug-log");
-    if (debugEl) debugEl.innerHTML = "";
-
     for (const token of tokens) {
       const mint = token.mint;
-      if (!trackedMints[mint]) continue; // Nur ausgewählte Tokens
+      if (!trackedTokens[mint]) continue;
 
-      const name = trackedMints[mint];
+      const { name, fallbackPrice } = trackedTokens[mint];
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
-      const price = await fetchTokenPrice(mint);
+      const price = await fetchTokenPrice(mint, fallbackPrice);
       const valueUSD = amount * price;
 
-      totalUSD += valueUSD;
       breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
-
-      if (debugEl) {
-        debugEl.innerHTML += `<div>${name}: ${amount.toFixed(2)} × $${price.toFixed(6)} = $${valueUSD.toFixed(2)}</div>`;
-      }
+      totalUSD += valueUSD;
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
-
-    const breakdownEl = document.getElementById("breakdown");
-    if (breakdownEl) breakdownEl.innerHTML = breakdown;
+    document.getElementById("breakdown").innerHTML = breakdown;
 
   } catch (err) {
-    console.error("Error fetching wallet data:", err);
+    console.error("Balance fetch failed:", err);
   }
 }
 
