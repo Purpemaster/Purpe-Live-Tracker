@@ -9,7 +9,7 @@ const mintToName = {
 
 const fixedPrices = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761,
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00,
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.0,
 };
 
 async function fetchSolPrice() {
@@ -27,7 +27,22 @@ async function fetchWalletBalance() {
     const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
     const data = await res.json();
 
-    const tokens = data.tokens || [];
+    let tokens = data.tokens || [];
+
+    // Check if PYUSD is missing
+    const pyusdMint = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
+    const hasPyusd = tokens.some(t => t.mint === pyusdMint);
+
+    // If missing, use saved balance
+    if (!hasPyusd) {
+      const saved = parseFloat(localStorage.getItem("lastPYUSD") || "0");
+      tokens.push({
+        mint: pyusdMint,
+        amount: saved * Math.pow(10, 6),
+        decimals: 6
+      });
+    }
+
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
     const solPrice = await fetchSolPrice();
@@ -41,9 +56,13 @@ async function fetchWalletBalance() {
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
       const name = mintToName[mint] || mint.slice(0, 4) + "...";
-
       const price = fixedPrices[mint] || 0;
       const valueUSD = amount * price;
+
+      // Save current PYUSD balance for fallback
+      if (mint === pyusdMint && amount > 0) {
+        localStorage.setItem("lastPYUSD", amount.toString());
+      }
 
       if (valueUSD > 0) {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
@@ -52,7 +71,6 @@ async function fetchWalletBalance() {
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
-
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
     document.getElementById("breakdown").innerHTML = breakdown;
