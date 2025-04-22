@@ -23,10 +23,9 @@ async function fetchTokenPrice(mintAddress) {
       return data.data?.value || 0;
     };
 
-    // 2 Versuche mit leichter Verzögerung
     let price = await getPrice();
     if (price === 0) {
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(resolve => setTimeout(resolve, 300));
       price = await getPrice();
     }
 
@@ -82,7 +81,7 @@ async function fetchWalletBalance() {
     }
 
   } catch (err) {
-    console.error("Fehler beim Wallet-Abgleich:", err);
+    console.error("Error fetching wallet balance:", err);
   }
 }
 
