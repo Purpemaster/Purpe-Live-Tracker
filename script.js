@@ -5,12 +5,12 @@ const goalUSD = 20000;
 
 const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD"
 };
 
 const fallbackPrices = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003795,
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9997,
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9997
 };
 
 async function fetchSolPrice() {
@@ -50,17 +50,18 @@ async function fetchWalletBalance() {
     let breakdownHTML = `SOL: $${solUSD.toFixed(2)}<br>`;
 
     for (const token of tokens) {
-      const mint = token.mint;
-      if (!(mint in mintToName)) continue;
-
+      const mint = token.mint.trim();
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
+
+      if (!(mint in mintToName)) continue;
+
       const name = mintToName[mint];
       const price = await fetchTokenPrice(mint);
       const valueUSD = amount * price;
 
-      breakdownHTML += `${name}: $${valueUSD.toFixed(2)}<br>`;
       totalUSD += valueUSD;
+      breakdownHTML += `${name}: $${valueUSD.toFixed(2)}<br>`;
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
@@ -69,10 +70,11 @@ async function fetchWalletBalance() {
     document.getElementById("breakdown").innerHTML = breakdownHTML;
 
     const now = new Date();
-    const timeString = now.toLocaleTimeString('en-GB');
-    document.getElementById("last-updated").textContent = `Last updated: ${timeString}`;
+    const timeString = now.toLocaleTimeString("en-GB");
+    const timeEl = document.getElementById("last-updated");
+    if (timeEl) timeEl.textContent = `Last updated: ${timeString}`;
   } catch (err) {
-    console.error("Error:", err);
+    console.error("Update error:", err);
   }
 }
 
