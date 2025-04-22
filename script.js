@@ -8,11 +8,6 @@ const mintToName = {
   "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD"
 };
 
-const fallbackPrices = {
-  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761, // PURPE
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9998       // PYUSD
-};
-
 async function fetchSolPrice() {
   try {
     const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
@@ -29,11 +24,18 @@ async function fetchTokenPrice(mint) {
       headers: { "X-API-KEY": birdeyeApiKey }
     });
     const data = await res.json();
-    const price = data.data?.value || 0;
-    return price > 0 ? price : (fallbackPrices[mint] || 0);
+    return data.data?.value || 0;
   } catch {
-    return fallbackPrices[mint] || 0;
+    return 0;
   }
+}
+
+function formatTime(date) {
+  return date.toLocaleTimeString('de-DE', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
 }
 
 async function fetchWalletBalance() {
@@ -60,7 +62,7 @@ async function fetchWalletBalance() {
       const valueUSD = amount * price;
 
       if (valueUSD > 0) {
-        breakdown += `${name}: $${valueUSD.toFixed(4)}<br>`;
+        breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
         totalUSD += valueUSD;
       }
     }
@@ -68,13 +70,17 @@ async function fetchWalletBalance() {
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
+
     const breakdownEl = document.getElementById("breakdown");
     if (breakdownEl) breakdownEl.innerHTML = breakdown;
 
+    const updatedEl = document.getElementById("last-updated");
+    if (updatedEl) updatedEl.textContent = `Last updated: ${formatTime(new Date())}`;
+
   } catch (err) {
-    console.error("Wallet fetch error:", err);
+    console.error("Error fetching wallet data:", err);
   }
 }
 
 fetchWalletBalance();
-setInterval(fetchWalletBalance, 60000);ü
+setInterval(fetchWalletBalance, 60000);
