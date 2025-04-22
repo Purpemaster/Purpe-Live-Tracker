@@ -3,10 +3,16 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-// Known tokens with exact MINT match
+// Optional readable token names
 const mintToName = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": "PURPE",
   "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": "PYUSD",
+};
+
+// Optional fallback prices if Birdeye fails
+const fallbackPrices = {
+  "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761, // PURPE
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 0.9998       // PYUSD
 };
 
 async function fetchSolPrice() {
@@ -25,9 +31,11 @@ async function fetchTokenPrice(mint) {
       headers: { "X-API-KEY": birdeyeApiKey }
     });
     const data = await res.json();
-    return data.data?.value || 0;
+    const fetched = data.data?.value || 0;
+
+    return fetched > 0 ? fetched : (fallbackPrices[mint] || 0);
   } catch {
-    return 0;
+    return fallbackPrices[mint] || 0;
   }
 }
 
