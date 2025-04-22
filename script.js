@@ -8,24 +8,30 @@ async function fetchSolPrice() {
     const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
     const data = await res.json();
     return data.solana?.usd || 0;
-  } catch (err) {
-    console.error("Fehler bei SOL-Preisabfrage:", err);
+  } catch {
     return 0;
   }
 }
 
 async function fetchTokenPrice(mintAddress) {
   try {
-    const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mintAddress}`, {
-      headers: {
-        "X-API-KEY": birdeyeApiKey
-      }
-    });
-    const data = await res.json();
-    const price = data.data?.value;
+    const getPrice = async () => {
+      const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mintAddress}`, {
+        headers: { "X-API-KEY": birdeyeApiKey }
+      });
+      const data = await res.json();
+      return data.data?.value || 0;
+    };
+
+    // 2 Versuche mit leichter Verzögerung
+    let price = await getPrice();
+    if (price === 0) {
+      await new Promise(r => setTimeout(r, 300));
+      price = await getPrice();
+    }
+
     return isNaN(price) ? 0 : price;
-  } catch (err) {
-    console.warn(`Preisfehler für Mint ${mintAddress}:`, err);
+  } catch {
     return 0;
   }
 }
@@ -38,15 +44,13 @@ async function fetchWalletBalance() {
     const tokens = data.tokens || [];
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
-
     const solPrice = await fetchSolPrice();
     const solUSD = sol * solPrice;
 
     let totalUSD = solUSD;
     let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
-
     const debugEl = document.getElementById("debug-log");
-    if (debugEl) debugEl.innerHTML = ""; // Reset
+    if (debugEl) debugEl.innerHTML = "";
 
     for (const token of tokens) {
       const mint = token.mint;
@@ -63,9 +67,8 @@ async function fetchWalletBalance() {
 
       if (valueUSD > 0) {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
+        totalUSD += valueUSD;
       }
-
-      totalUSD += valueUSD;
     }
 
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
