@@ -6,21 +6,6 @@
   <title>Live Donation Tracker</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <style>
-    #breakdown {
-      margin-top: 10px;
-      font-size: 16px;
-      line-height: 1.4;
-      word-wrap: break-word;
-      color: white;
-    }
-    #debug-log {
-      color: #fff;
-      font-size: 12px;
-      margin-top: 20px;
-      word-break: break-word;
-    }
-  </style>
 </head>
 <body>
   <div class="background"></div>
@@ -40,12 +25,8 @@
     <div class="info-box" id="info-box">
       <p>Purple Pepe is becoming a legend —<br> this wallet is the fuel.</p>
       <p>Your donation powers our journey to the biggest exchanges in the world.</p>
-      <div id="breakdown">
-        <!-- Dynamic tokens go here -->
-      </div>
+      <p id="breakdown">SOL: $0.00<br>PURPE: $0.00<br>PYUSD: $0.00</p>
     </div>
-
-    <div id="debug-log"></div>
   </div>
 
   <script src="script.js"></script>
