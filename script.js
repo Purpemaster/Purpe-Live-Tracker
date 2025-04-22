@@ -10,7 +10,7 @@ const mintToName = {
 
 const fallbackPrices = {
   "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL": 0.00003761,
-  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.0
+  "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo": 1.00
 };
 
 async function fetchSolPrice() {
@@ -50,10 +50,10 @@ async function fetchWalletBalance() {
     let totalUSD = solUSD;
     let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
 
-    // Always handle PYUSD manually
-    let pyusdToken = tokens.find(t => t.mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo");
-    if (pyusdToken) {
-      const amount = pyusdToken.amount / Math.pow(10, pyusdToken.decimals || 6);
+    // Optional: Zeige immer PYUSD, auch wenn Preis fehlt
+    let pyusd = tokens.find(t => t.mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo");
+    if (pyusd) {
+      const amount = pyusd.amount / Math.pow(10, pyusd.decimals || 6);
       const valueUSD = amount * fallbackPrices["2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"];
       totalUSD += valueUSD;
       breakdown += `PYUSD: $${valueUSD.toFixed(2)}<br>`;
@@ -61,7 +61,7 @@ async function fetchWalletBalance() {
 
     for (const token of tokens) {
       const mint = token.mint;
-      if (mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo") continue; // already handled
+      if (mint === "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo") continue; // bereits behandelt
 
       const decimals = token.decimals || 6;
       const amount = token.amount / Math.pow(10, decimals);
@@ -91,6 +91,8 @@ async function fetchWalletBalance() {
 
   } catch (err) {
     console.error("Error fetching wallet data:", err);
+    document.getElementById("current-amount").textContent = "$0.00";
+    document.getElementById("breakdown").innerHTML = "Error loading wallet data.";
   }
 }
 
