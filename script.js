@@ -3,16 +3,17 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
 const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
+const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
 
 const mintToName = {
   [PURPE_MINT]: "PURPE",
-  [PYUSD_MINT]: "PYUSD",
+  [PYUSD_MINT]: "PYUSD"
 };
 
 const fixedPrices = {
-  [PYUSD_MINT]: 1.0, // Fix für PYUSD
+  [PYUSD_MINT]: 1.0,
+  [PURPE_MINT]: 0.00003761
 };
 
 async function fetchSolPrice() {
@@ -25,17 +26,16 @@ async function fetchSolPrice() {
   }
 }
 
-async function fetchTokenPrice(mint) {
+async function fetchPurpePrice() {
   try {
-    if (fixedPrices[mint]) return fixedPrices[mint];
-
-    const res = await fetch(`https://public-api.birdeye.so/public/price?address=${mint}`, {
+    const res = await fetch(`https://public-api.birdeye.so/public/price?address=${PURPE_MINT}`, {
       headers: { "X-API-KEY": birdeyeApiKey }
     });
     const data = await res.json();
-    return data.data?.value || 0;
+    const value = parseFloat(data?.data?.value || 0);
+    return value > 0 ? value : fixedPrices[PURPE_MINT];
   } catch {
-    return 0;
+    return fixedPrices[PURPE_MINT];
   }
 }
 
@@ -45,30 +45,41 @@ async function fetchWalletBalance() {
     const data = await res.json();
 
     const tokens = data.tokens || [];
+
+    // PYUSD not present? Fallback from localStorage
+    const hasPYUSD = tokens.some(t => t.mint === PYUSD_MINT);
+    if (!hasPYUSD) {
+      const savedPYUSD = parseFloat(localStorage.getItem("lastPYUSDAmount") || "0");
+      if (savedPYUSD > 0) {
+        tokens.push({
+          mint: PYUSD_MINT,
+          amount: savedPYUSD * 1_000_000,
+          decimals: 6
+        });
+      }
+    }
+
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
     const solPrice = await fetchSolPrice();
+    const purpePrice = await fetchPurpePrice();
     const solUSD = sol * solPrice;
 
     let totalUSD = solUSD;
     let breakdown = `SOL: $${solUSD.toFixed(2)}<br>`;
 
-    let hasPYUSD = false;
-
     for (const token of tokens) {
-      const mint = token.mint;
-      const decimals = token.decimals || 6;
-      const amount = token.amount / Math.pow(10, decimals);
+      const { mint, decimals = 6, amount } = token;
       const name = mintToName[mint] || mint.slice(0, 4) + "...";
+      const realAmount = amount / Math.pow(10, decimals);
 
-      const price = await fetchTokenPrice(mint);
-      const valueUSD = amount * price;
+      let price = fixedPrices[mint] || 0;
+      if (mint === PURPE_MINT) price = purpePrice;
 
-      if (mint === PYUSD_MINT) {
-        hasPYUSD = true;
-        if (amount > 0) {
-          localStorage.setItem("lastPYUSDAmount", amount.toString());
-        }
+      const valueUSD = realAmount * price;
+
+      if (mint === PYUSD_MINT && realAmount > 0) {
+        localStorage.setItem("lastPYUSDAmount", realAmount.toString());
       }
 
       if (valueUSD > 0) {
@@ -77,18 +88,7 @@ async function fetchWalletBalance() {
       }
     }
 
-    // Falls PYUSD nicht dabei war – greife auf gespeicherten Wert zurück
-    if (!hasPYUSD) {
-      const saved = parseFloat(localStorage.getItem("lastPYUSDAmount") || "0");
-      const fallbackValue = saved * 1.0;
-      if (saved > 0) {
-        breakdown += `PYUSD: $${fallbackValue.toFixed(2)}<br>`;
-        totalUSD += fallbackValue;
-      }
-    }
-
     const percent = Math.min((totalUSD / goalUSD) * 100, 100);
-
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
     document.getElementById("progress-fill").style.width = `${percent}%`;
     document.getElementById("breakdown").innerHTML = breakdown;
