@@ -29,7 +29,7 @@ async function fetchPurpePrice() {
     );
     const data = await res.json();
     const outAmount = parseFloat(data?.outAmount || "0");
-    const price = outAmount / 1_000_000; // USDC = 6 decimals
+    const price = outAmount / 1_000_000;
     return price > 0 ? price : fixedPrices[PURPE_MINT];
   } catch (err) {
     console.warn("Jupiter QUOTE API-Fehler für PURPE:", err);
@@ -62,7 +62,6 @@ async function fetchWalletBalance() {
 
       if (valueUSD > 0) {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
-        breakdown += `<small style="opacity:0.6;">1 PURPE = $${purpePrice.toFixed(8)}</small><br>`;
         totalUSD += valueUSD;
       }
     }
