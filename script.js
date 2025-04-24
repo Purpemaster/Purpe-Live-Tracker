@@ -3,16 +3,13 @@ const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
 const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
-const PYUSD_MINT = "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo";
 const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
 
 const mintToName = {
-  [PURPE_MINT]: "PURPE",
-  [PYUSD_MINT]: "PYUSD"
+  [PURPE_MINT]: "PURPE"
 };
 
 const fixedPrices = {
-  [PYUSD_MINT]: 1.0,
   [PURPE_MINT]: 0.00003761
 };
 
@@ -45,20 +42,6 @@ async function fetchWalletBalance() {
     const data = await res.json();
 
     const tokens = data.tokens || [];
-
-    // PYUSD not present? Fallback from localStorage
-    const hasPYUSD = tokens.some(t => t.mint === PYUSD_MINT);
-    if (!hasPYUSD) {
-      const savedPYUSD = parseFloat(localStorage.getItem("lastPYUSDAmount") || "0");
-      if (savedPYUSD > 0) {
-        tokens.push({
-          mint: PYUSD_MINT,
-          amount: savedPYUSD * 1_000_000,
-          decimals: 6
-        });
-      }
-    }
-
     const lamports = data.nativeBalance || 0;
     const sol = lamports / 1_000_000_000;
     const solPrice = await fetchSolPrice();
@@ -70,17 +53,11 @@ async function fetchWalletBalance() {
 
     for (const token of tokens) {
       const { mint, decimals = 6, amount } = token;
+      if (mint !== PURPE_MINT) continue;
+
       const name = mintToName[mint] || mint.slice(0, 4) + "...";
       const realAmount = amount / Math.pow(10, decimals);
-
-      let price = fixedPrices[mint] || 0;
-      if (mint === PURPE_MINT) price = purpePrice;
-
-      const valueUSD = realAmount * price;
-
-      if (mint === PYUSD_MINT && realAmount > 0) {
-        localStorage.setItem("lastPYUSDAmount", realAmount.toString());
-      }
+      const valueUSD = realAmount * purpePrice;
 
       if (valueUSD > 0) {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
