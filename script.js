@@ -24,26 +24,15 @@ async function fetchSolPrice() {
 
 async function fetchPurpePrice() {
   try {
-    // Versuche zuerst über Jupiter Quote
-    const jupRes = await fetch(
+    const res = await fetch(
       `https://quote-api.jup.ag/v6/quote?inputMint=${PURPE_MINT}&outputMint=Es9vMFrzaCERzVw1e8Jdi9bQ5Z3PvAPbpt4nTTbFzmiM&amount=1000000&slippage=1`
     );
-    const jupData = await jupRes.json();
-    const outAmount = parseFloat(jupData?.outAmount || "0");
-    if (outAmount > 0) return outAmount / 1_000_000;
-
-    // Fallback: Birdeye
-    const birdRes = await fetch(`https://public-api.birdeye.so/public/price?address=${PURPE_MINT}`, {
-      headers: { "X-API-KEY": "f80a250b67bc411dadbadadd6ecd2cf2" }
-    });
-    const birdData = await birdRes.json();
-    const birdValue = parseFloat(birdData?.data?.value || 0);
-    if (birdValue > 0) return birdValue;
-
-    // Notfall-Fallback
-    return fixedPrices[PURPE_MINT];
+    const data = await res.json();
+    const outAmount = parseFloat(data?.outAmount || "0");
+    const price = outAmount / 1_000_000; // USDC = 6 decimals
+    return price > 0 ? price : fixedPrices[PURPE_MINT];
   } catch (err) {
-    console.warn("Fehler bei PURPE Preisabruf:", err);
+    console.warn("Jupiter QUOTE API-Fehler für PURPE:", err);
     return fixedPrices[PURPE_MINT];
   }
 }
@@ -73,6 +62,7 @@ async function fetchWalletBalance() {
 
       if (valueUSD > 0) {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
+        breakdown += `<small style="opacity:0.6;">1 PURPE = $${purpePrice.toFixed(8)}</small><br>`;
         totalUSD += valueUSD;
       }
     }
