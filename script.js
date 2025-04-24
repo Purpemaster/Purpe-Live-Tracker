@@ -1,7 +1,49 @@
-ount / 1_000_000; // USDC = 6 decimals
-    return price > 0 ? price : fixedPrices[PURPE_MINT];
+const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
+const goalUSD = 20000;
+
+const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
+
+const mintToName = {
+  [PURPE_MINT]: "PURPE"
+};
+
+const fixedPrices = {
+  [PURPE_MINT]: 0.00003761
+};
+
+async function fetchSolPrice() {
+  try {
+    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+    const data = await res.json();
+    return data.solana?.usd || 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function fetchPurpePrice() {
+  try {
+    // Versuche zuerst über Jupiter Quote
+    const jupRes = await fetch(
+      `https://quote-api.jup.ag/v6/quote?inputMint=${PURPE_MINT}&outputMint=Es9vMFrzaCERzVw1e8Jdi9bQ5Z3PvAPbpt4nTTbFzmiM&amount=1000000&slippage=1`
+    );
+    const jupData = await jupRes.json();
+    const outAmount = parseFloat(jupData?.outAmount || "0");
+    if (outAmount > 0) return outAmount / 1_000_000;
+
+    // Fallback: Birdeye
+    const birdRes = await fetch(`https://public-api.birdeye.so/public/price?address=${PURPE_MINT}`, {
+      headers: { "X-API-KEY": "f80a250b67bc411dadbadadd6ecd2cf2" }
+    });
+    const birdData = await birdRes.json();
+    const birdValue = parseFloat(birdData?.data?.value || 0);
+    if (birdValue > 0) return birdValue;
+
+    // Notfall-Fallback
+    return fixedPrices[PURPE_MINT];
   } catch (err) {
-    console.warn("Jupiter QUOTE API-Fehler für PURPE:", err);
+    console.warn("Fehler bei PURPE Preisabruf:", err);
     return fixedPrices[PURPE_MINT];
   }
 }
@@ -31,7 +73,6 @@ async function fetchWalletBalance() {
 
       if (valueUSD > 0) {
         breakdown += `${name}: $${valueUSD.toFixed(2)}<br>`;
-        breakdown += `<small style="opacity:0.6;">1 PURPE = $${purpePrice.toFixed(8)}</small><br>`;
         totalUSD += valueUSD;
       }
     }
