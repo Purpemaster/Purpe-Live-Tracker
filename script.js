@@ -1,6 +1,5 @@
 const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
 const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const birdeyeApiKey = "f80a250b67bc411dadbadadd6ecd2cf2";
 const goalUSD = 20000;
 
 const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
@@ -25,13 +24,12 @@ async function fetchSolPrice() {
 
 async function fetchPurpePrice() {
   try {
-    const res = await fetch(`https://public-api.birdeye.so/public/price?address=${PURPE_MINT}`, {
-      headers: { "X-API-KEY": birdeyeApiKey }
-    });
+    const res = await fetch(`https://quote-api.jup.ag/v6/price?ids=${PURPE_MINT}`);
     const data = await res.json();
-    const value = parseFloat(data?.data?.value || 0);
-    return value > 0 ? value : fixedPrices[PURPE_MINT];
-  } catch {
+    const price = parseFloat(data?.data?.[PURPE_MINT]?.price || 0);
+    return price > 0 ? price : fixedPrices[PURPE_MINT];
+  } catch (err) {
+    console.warn("Jupiter API-Fehler für PURPE:", err);
     return fixedPrices[PURPE_MINT];
   }
 }
