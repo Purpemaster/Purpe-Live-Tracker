@@ -1,35 +1,4 @@
-const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-const heliusApiKey = "2e046356-0f0c-4880-93cc-6d5467e81c73";
-const goalUSD = 20000;
-
-const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-
-const mintToName = {
-  [PURPE_MINT]: "PURPE"
-};
-
-const fixedPrices = {
-  [PURPE_MINT]: 0.00003761
-};
-
-async function fetchSolPrice() {
-  try {
-    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
-    const data = await res.json();
-    return data.solana?.usd || 0;
-  } catch {
-    return 0;
-  }
-}
-
-async function fetchPurpePrice() {
-  try {
-    const res = await fetch(
-      `https://quote-api.jup.ag/v6/quote?inputMint=${PURPE_MINT}&outputMint=Es9vMFrzaCERzVw1e8Jdi9bQ5Z3PvAPbpt4nTTbFzmiM&amount=1000000&slippage=1`
-    );
-    const data = await res.json();
-    const outAmount = parseFloat(data?.outAmount || "0");
-    const price = outAmount / 1_000_000; // USDC = 6 decimals
+ount / 1_000_000; // USDC = 6 decimals
     return price > 0 ? price : fixedPrices[PURPE_MINT];
   } catch (err) {
     console.warn("Jupiter QUOTE API-Fehler für PURPE:", err);
