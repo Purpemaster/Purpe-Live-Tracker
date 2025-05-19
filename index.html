@@ -3,23 +3,103 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Purple Pepe Radio</title>
+  <title>Purple Pepe Donation Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Inline Style für Splash & Radio -->
   <style>
     body {
-      background: #1a001f;
+      background: #0d0011;
       font-family: 'Segoe UI', sans-serif;
       color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px 10px;
+      margin: 0;
+      padding: 0;
     }
 
-    h2 {
-      color: #fff;
-      margin-bottom: 20px;
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: white;
       font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    #splash.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      padding: 30px 10px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 2.5rem;
       text-shadow: 0 0 10px #ff00ff;
+    }
+
+    .progress-bar {
+      width: 80%;
+      height: 20px;
+      background: #333;
+      margin: 20px auto;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 63.7%; /* Beispielwert für $12.743 von $20.000 */
+      background: linear-gradient(to right, #00f0ff, #ff00ff);
+    }
+
+    .glow-box {
+      margin: 10px auto;
+      background: #24002e;
+      border-radius: 10px;
+      padding: 10px 20px;
+      width: fit-content;
+      box-shadow: 0 0 12px #ff00ff;
+    }
+
+    .qr-section {
+      margin-top: 30px;
+    }
+
+    .wallet-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .donate-buttons {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .donate-button {
+      background: #6b00b6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      text-decoration: none;
+      box-shadow: 0 0 10px #a900ff;
     }
 
     .radio-grid {
@@ -29,6 +109,7 @@
       gap: 14px;
       width: 100%;
       max-width: 440px;
+      margin: 40px auto;
     }
 
     .radio-station {
@@ -61,7 +142,7 @@
     }
 
     audio {
-      margin-top: 30px;
+      margin-top: 20px;
       width: 100%;
       max-width: 440px;
       box-shadow: 0 0 12px #6b00b6;
@@ -71,36 +152,74 @@
 </head>
 
 <body>
-  <h2>🎧 Purple Pepe Radio</h2>
+  <div id="splash">Loading...</div>
 
-  <div class="radio-grid">
-    <div class="radio-station" data-src="https://alphaboys-live.streamguys1.com/alphaboys.aac">
-      🎺 <strong>Purple Kingston</strong>
-      <span>Reggae aus der Metaverse-Yard 🇯🇲</span>
+  <div class="container">
+    <h1 class="title">Purple Pepe Donation Tracker</h1>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill-1"></div>
     </div>
 
-    <div class="radio-station" data-src="https://streams.ilovemusic.de/iloveradio14.mp3">
-      🌙 <strong>Purpe Vibes</strong>
-      <span>LoFi für Wallet-Heilung & DAO-Kater</span>
+    <div id="progress-info">
+      <div class="glow-box" id="current-amount">$12743.49</div>
+      <div class="glow-box" id="last-updated">Letztes Update: 00:48 MESZ</div>
+      <div class="glow-box" id="goal-amount">$20,000</div>
     </div>
 
-    <div class="radio-station" data-src="http://listen.181fm.com/181-beat_64k.aac">
-      🔊 <strong>Purpe Flowchain</strong>
-      <span>Web3-Bars & Beats für degen movers</span>
+    <div class="qr-section">
+      <canvas id="wallet-qr"></canvas>
+      <div class="wallet-container">
+        <span id="wallet-address" class="glow-box single-line">
+          9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn
+        </span>
+        <button id="copy-button" title="Adresse kopieren">📋</button>
+      </div>
     </div>
 
-    <div class="radio-station" data-src="http://listen.181fm.com/181-rock_64k.aac">
-      🎸 <strong>Ribbit Rock</strong>
-      <span>Frosch mit Gitarre. Mehr musst du nicht wissen.</span>
+    <div class="donate-buttons">
+      <a href="#" id="donate-sol" class="donate-button">Donation SOL</a>
+      <a href="#" id="donate-purpe" class="donate-button">Donation PURPE</a>
     </div>
+
+    <h2 style="margin-top: 50px;">🎧 Purple Pepe Radio</h2>
+
+    <div class="radio-grid">
+      <div class="radio-station" data-src="https://alphaboys-live.streamguys1.com/alphaboys.aac">
+        🎺 <strong>Purple Kingston</strong>
+        <span>Reggae aus der Metaverse-Yard 🇯🇲</span>
+      </div>
+
+      <div class="radio-station" data-src="https://streams.ilovemusic.de/iloveradio14.mp3">
+        🌙 <strong>Purpe Vibes</strong>
+        <span>LoFi für Wallet-Heilung & DAO-Kater</span>
+      </div>
+
+      <div class="radio-station" data-src="http://listen.181fm.com/181-beat_64k.aac">
+        🎤 <strong>Purpe Flowchain</strong>
+        <span>Web3-Bars & Beats für degen movers</span>
+      </div>
+
+      <div class="radio-station" data-src="http://listen.181fm.com/181-rock_64k.aac">
+        🎸 <strong>Ribbit Rock</strong>
+        <span>Frosch mit Gitarre. Mehr musst du nicht wissen.</span>
+      </div>
+    </div>
+
+    <audio id="pepe-radio" controls autoplay>
+      <source src="https://alphaboys-live.streamguys1.com/alphaboys.aac" type="audio/aac">
+      Dein Browser kann Purple Pepe Radio nicht abspielen.
+    </audio>
   </div>
 
-  <audio id="pepe-radio" controls autoplay>
-    <source src="https://alphaboys-live.streamguys1.com/alphaboys.aac" type="audio/aac">
-    Dein Browser kann Purple Pepe Radio nicht abspielen.
-  </audio>
-
   <script>
+    // Splash entfernen
+    window.addEventListener('load', () => {
+      const splash = document.getElementById('splash');
+      if (splash) splash.classList.add('hidden');
+    });
+
+    // Radio Umschaltung
     document.addEventListener("DOMContentLoaded", () => {
       const stations = document.querySelectorAll(".radio-station");
       const audio = document.getElementById("pepe-radio");
