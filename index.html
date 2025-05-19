@@ -24,6 +24,7 @@
   <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 
+  <!-- Inline Styles für Splash -->
   <style>
     #splash {
       position: fixed;
@@ -48,6 +49,7 @@
 </head>
 
 <body>
+  <!-- Splashscreen -->
   <div id="splash">Loading...</div>
 
   <div class="container">
@@ -78,13 +80,13 @@
       <a href="#" id="donate-purpe" class="donate-button">Donation PURPE</a>
     </div>
 
-    <!-- 🎧 Purple Pepe Radio (aktualisiert) -->
+    <!-- 🎧 Purple Pepe Radio -->
     <div id="radio-wrapper" style="text-align: center; margin-top: 40px;">
       <h2 style="color: #fff;">🎧 Purple Pepe Radio</h2>
       <select id="station-select" style="padding: 10px; font-size: 16px; border-radius: 6px;">
         <option value="https://streams.ilovemusic.de/iloveradio14.mp3">🧘 Lofi Girl (Live)</option>
-        <option value="https://ice10.securenetsystems.net/WBHH">🎤 PowerHitz (HipHop USA)</option>
-        <option value="https://reggae141.radioca.st/stream">🇯🇲 Reggae141 (Jamaica)</option>
+        <option value="http://listen.181fm.com/181-beat_64k.aac">🎤 181.fm - The Beat (HipHop)</option>
+        <option value="http://listen.181fm.com/181-reggae_64k.aac">🇯🇲 181.fm - Reggae Roots</option>
         <option value="http://listen.181fm.com/181-rock_64k.aac">🎸 181.fm - Rock Radio</option>
       </select>
       <br /><br />
@@ -103,9 +105,10 @@
     </div>
   </div>
 
+  <!-- Dein Haupt-JS (von dir gepflegt) -->
   <script src="script.js" defer></script>
 
-  <!-- 🎵 Radio Umschaltung -->
+  <!-- 🎛 Radio Umschaltung -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const audio = document.getElementById("pepe-radio");
@@ -122,7 +125,7 @@
     });
   </script>
 
-  <!-- ✅ Splash-Screen sauber entfernen -->
+  <!-- 🧼 Splash-Screen beenden -->
   <script>
     window.addEventListener('load', () => {
       const splash = document.getElementById('splash');
