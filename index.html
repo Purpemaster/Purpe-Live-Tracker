@@ -3,162 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Purple Pepe Donation Tracker</title>
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- 🌐 Open Graph Meta Tags für Social Media Vorschau -->
-  <meta property="og:title" content="Purple Pepe Donation Tracker">
-  <meta property="og:description" content="Spende an das lila Meme-Projekt auf Solana – Ziel: $20.000 🚀">
-  <meta property="og:image" content="https://i.imgur.com/cc4aEnK.png">
-  <meta property="og:url" content="https://purple-pepe-bunker.onrender.com">
-  <meta property="og:type" content="website">
-
-  <!-- 🐦 Twitter Card Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Purple Pepe Donation Tracker">
-  <meta name="twitter:description" content="Spende an das lila Meme-Projekt auf Solana – Ziel: $20.000 🚀">
-  <meta name="twitter:image" content="https://i.imgur.com/cc4aEnK.png">
-
-  <!-- Wallet & Token Libraries -->
-  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
-  <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-
-  <!-- Splash Styles -->
+  <title>Purple Pepe Radio</title>
   <style>
-    #splash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      color: white;
-      font-size: 2rem;
+    body {
+      background-color: #000;
       display: flex;
-      align-items: center;
       justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: sans-serif;
     }
-    #splash.hidden {
-      opacity: 0;
-      pointer-events: none;
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 120px);
+      grid-template-rows: repeat(2, 120px);
+      gap: 20px;
     }
-    .radio-btn {
-      padding: 14px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(45deg, #7b00ff, #00ffe7);
-      color: white;
-      font-weight: bold;
+
+    .crystal {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #7b00ff, #00ffe7);
+      border-radius: 20px;
+      box-shadow: 0 0 20px #8000ff, 0 0 40px #00ffe7;
       cursor: pointer;
-      box-shadow: 0 0 10px #8000ff, 0 0 20px #00ffe7;
-      animation: pulse 2s infinite;
-      transition: transform 0.2s;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: crystal-pulse 3s infinite ease-in-out;
     }
-    .radio-btn:hover {
-      transform: scale(1.05);
+
+    .crystal:hover {
+      transform: scale(1.1) rotate(3deg);
+      box-shadow: 0 0 30px #fff, 0 0 60px #7b00ff;
     }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 10px #8000ff, 0 0 20px #00ffe7; }
-      50% { box-shadow: 0 0 20px #00ffe7, 0 0 30px #8000ff; }
-      100% { box-shadow: 0 0 10px #8000ff, 0 0 20px #00ffe7; }
+
+    @keyframes crystal-pulse {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
     }
   </style>
 </head>
-
 <body>
-  <div id="splash">Loading...</div>
-
-  <div class="container">
-    <h1 class="title">Purple Pepe Donation Tracker</h1>
-
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress-fill-1"></div>
-    </div>
-
-    <div id="progress-info">
-      <div class="glow-box" id="current-amount">$0.00</div>
-      <div class="glow-box" id="last-updated">Letztes Update: --:--:--</div>
-      <div class="glow-box" id="goal-amount">$20,000</div>
-    </div>
-
-    <div class="qr-section">
-      <canvas id="wallet-qr"></canvas>
-      <div class="wallet-container">
-        <span id="wallet-address" class="glow-box single-line">
-          9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn
-        </span>
-        <button id="copy-button" title="Adresse kopieren">📋</button>
-      </div>
-    </div>
-
-    <div class="donate-buttons">
-      <a href="#" id="donate-sol" class="donate-button">Donation SOL</a>
-      <a href="#" id="donate-purpe" class="donate-button">Donation PURPE</a>
-    </div>
-
-    <!-- 🎧 Purple Pepe Radio – Electric Button Version -->
-    <div id="radio-wrapper" style="text-align: center; margin-top: 40px;">
-      <h2 style="color: #fff; font-size: 28px; margin-bottom: 20px;">
-        🎧 Purple Pepe Radio
-      </h2>
-
-      <div id="radio-buttons" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
-        <button class="radio-btn" data-title="🧘 Lofi Girl" data-src="https://streams.ilovemusic.de/iloveradio14.mp3">🧘 Lofi</button>
-        <button class="radio-btn" data-title="🎤 181.fm – The Beat" data-src="http://listen.181fm.com/181-beat_64k.aac">🎤 HipHop</button>
-        <button class="radio-btn" data-title="🇯🇲 181.fm – Reggae Roots" data-src="http://listen.181fm.com/181-reggae_64k.aac">🇯🇲 Reggae</button>
-        <button class="radio-btn" data-title="🎸 181.fm – Rock 181" data-src="http://listen.181fm.com/181-rock_64k.aac">🎸 Rock</button>
-      </div>
-
-      <div style="margin-bottom: 10px; color: #fff; font-size: 18px;">
-        <span>🎵 Now Playing:</span> <span id="radio-title">🧘 Lofi Girl</span>
-      </div>
-
-      <audio id="pepe-radio" controls autoplay style="width: 80%; max-width: 400px;">
-        <source src="https://streams.ilovemusic.de/iloveradio14.mp3" type="audio/mpeg">
-        Dein Browser kann Purple Pepe Radio nicht abspielen.
-      </audio>
-    </div>
-
-    <div class="social-share" style="margin-top: 40px;">
-      <a href="https://x.com/purplepepes0l?s=21" target="_blank"><img src="x_icon.png" alt="X"></a>
-      <a href="https://www.facebook.com/share/g/15oN9pyr4w/?mibextid=wwXIfr" target="_blank"><img src="facebook_icon.png" alt="Facebook"></a>
-      <a href="https://www.instagram.com/purplepepes0l?igsh=a2Q2NDRjc2lrbjEz" target="_blank"><img src="instagram_icon.png" alt="Instagram"></a>
-      <a href="https://www.tiktok.com/@purpe.factory?_t=ZN-8vweUeJUFPC&_r=1" target="_blank"><img src="tiktok_icon.png" alt="TikTok"></a>
-      <a href="https://t.me/Purpe_SOL" target="_blank"><img src="telegram_icon.png" alt="Telegram"></a>
-    </div>
+  <div class="grid">
+    <div class="crystal" data-src="https://streams.ilovemusic.de/iloveradio14.mp3"></div>
+    <div class="crystal" data-src="http://listen.181fm.com/181-beat_64k.aac"></div>
+    <div class="crystal" data-src="http://listen.181fm.com/181-reggae_64k.aac"></div>
+    <div class="crystal" data-src="http://listen.181fm.com/181-rock_64k.aac"></div>
   </div>
 
-  <!-- Funktionales Script -->
-  <script src="script.js" defer></script>
+  <audio id="player" autoplay></audio>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const audio = document.getElementById("pepe-radio");
-      const title = document.getElementById("radio-title");
-      const buttons = document.querySelectorAll(".radio-btn");
+    const player = document.getElementById('player');
+    const crystals = document.querySelectorAll('.crystal');
 
-      buttons.forEach(button => {
-        button.addEventListener("click", () => {
-          const newSrc = button.getAttribute("data-src");
-          const newTitle = button.getAttribute("data-title");
-          audio.pause();
-          audio.src = newSrc;
-          audio.load();
-          audio.play().catch(err => {
-            console.warn("Autoplay blockiert", err);
-          });
-          title.textContent = newTitle;
-        });
+    crystals.forEach(crystal => {
+      crystal.addEventListener('click', () => {
+        const src = crystal.getAttribute('data-src');
+        if (src) {
+          player.src = src;
+          player.play();
+        }
       });
-    });
-
-    window.addEventListener('load', () => {
-      const splash = document.getElementById('splash');
-      if (splash) splash.classList.add('hidden');
     });
   </script>
 </body>
