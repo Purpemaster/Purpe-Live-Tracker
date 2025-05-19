@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Purple Pepe Radio</title>
+  <title>Purple Pepe Radio Galaxy</title>
   <style>
     body {
       background-color: #000;
@@ -12,59 +12,76 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      font-family: sans-serif;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 120px);
-      grid-template-rows: repeat(2, 120px);
-      gap: 20px;
+    .planet-container {
+      display: flex;
+      gap: 40px;
     }
 
-    .crystal {
-      width: 120px;
-      height: 120px;
-      background: linear-gradient(135deg, #7b00ff, #00ffe7);
-      border-radius: 20px;
-      box-shadow: 0 0 20px #8000ff, 0 0 40px #00ffe7;
+    .planet {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, #000);
+      box-shadow: 0 0 20px #fff, 0 0 40px #fff;
+      animation: pulse 2s infinite;
       cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      animation: crystal-pulse 3s infinite ease-in-out;
     }
 
-    .crystal:hover {
-      transform: scale(1.1) rotate(3deg);
-      box-shadow: 0 0 30px #fff, 0 0 60px #7b00ff;
+    .planet:nth-child(1) {
+      background: radial-gradient(circle at 30% 30%, #ff00ff, #800080);
+      box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
     }
 
-    @keyframes crystal-pulse {
-      0%, 100% {
-        transform: translateY(0px);
+    .planet:nth-child(2) {
+      background: radial-gradient(circle at 30% 30%, #00ffff, #008080);
+      box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+    }
+
+    .planet:nth-child(3) {
+      background: radial-gradient(circle at 30% 30%, #ffff00, #808000);
+      box-shadow: 0 0 20px #ffff00, 0 0 40px #ffff00;
+    }
+
+    .planet:nth-child(4) {
+      background: radial-gradient(circle at 30% 30%, #ff0000, #800000);
+      box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 20px #fff, 0 0 40px #fff;
       }
       50% {
-        transform: translateY(-5px);
+        transform: scale(1.1);
+        box-shadow: 0 0 30px #fff, 0 0 60px #fff;
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px #fff, 0 0 40px #fff;
       }
     }
   </style>
 </head>
 <body>
-  <div class="grid">
-    <div class="crystal" data-src="https://streams.ilovemusic.de/iloveradio14.mp3"></div>
-    <div class="crystal" data-src="http://listen.181fm.com/181-beat_64k.aac"></div>
-    <div class="crystal" data-src="http://listen.181fm.com/181-reggae_64k.aac"></div>
-    <div class="crystal" data-src="http://listen.181fm.com/181-rock_64k.aac"></div>
+  <div class="planet-container">
+    <div class="planet" data-src="https://streams.ilovemusic.de/iloveradio14.mp3"></div>
+    <div class="planet" data-src="http://listen.181fm.com/181-beat_64k.aac"></div>
+    <div class="planet" data-src="http://listen.181fm.com/181-reggae_64k.aac"></div>
+    <div class="planet" data-src="http://listen.181fm.com/181-rock_64k.aac"></div>
   </div>
 
   <audio id="player" autoplay></audio>
 
   <script>
     const player = document.getElementById('player');
-    const crystals = document.querySelectorAll('.crystal');
+    const planets = document.querySelectorAll('.planet');
 
-    crystals.forEach(crystal => {
-      crystal.addEventListener('click', () => {
-        const src = crystal.getAttribute('data-src');
+    planets.forEach(planet => {
+      planet.addEventListener('click', () => {
+        const src = planet.getAttribute('data-src');
         if (src) {
           player.src = src;
           player.play();
