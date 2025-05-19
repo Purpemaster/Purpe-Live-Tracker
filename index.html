@@ -23,6 +23,28 @@
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
   <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+  <style>
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: white;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    #splash.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 
 <body>
@@ -56,23 +78,23 @@
       <a href="#" id="donate-purpe" class="donate-button">Donation PURPE</a>
     </div>
 
-    <!-- 🚀 Purple Pepe Radio (GTA-Vibes) -->
-    <div id="radio-wrapper" style="text-align: center; margin-top: 30px;">
+    <!-- 🎧 Purple Pepe Radio (funktionierende Version) -->
+    <div id="radio-wrapper" style="text-align: center; margin-top: 40px;">
       <h2 style="color: #fff;">🎧 Purple Pepe Radio</h2>
       <select id="station-select" style="padding: 10px; font-size: 16px; border-radius: 6px;">
-        <option value="https://stream.zeno.fm/2u2u7u1cptzuv">🧘 Lofi Pepe (Chill)</option>
-        <option value="https://stream.zeno.fm/0f7tsm3s4hhvv">🔥 Trap Frog Beats</option>
-        <option value="https://stream.zeno.fm/0k2q9pprg18uv">🎸 Rock Republic</option>
-        <option value="https://stream.zeno.fm/ew1b8fhecfhvv">🎤 Meme Classics FM</option>
+        <option value="https://streams.ilovemusic.de/iloveradio14.mp3">🧘 Lofi Girl (Live)</option>
+        <option value="https://icecast.retrowavesynthwave.com/retrowave">🚀 Synthwave FM</option>
+        <option value="https://us4.internet-radio.com:8266/stream">🔥 Chillhop Beats</option>
+        <option value="https://streaming.radionomy.com/TrapNationRadio">🎤 Trap Nation</option>
       </select>
       <br /><br />
       <audio id="pepe-radio" controls autoplay style="width: 80%; max-width: 400px;">
-        <source src="https://stream.zeno.fm/2u2u7u1cptzuv" type="audio/mpeg">
-        Dein Browser kann Purple Pepe Radio nicht abspielen. Das ist traurig.
+        <source src="https://streams.ilovemusic.de/iloveradio14.mp3" type="audio/mpeg">
+        Dein Browser kann Purple Pepe Radio nicht abspielen.
       </audio>
     </div>
 
-    <div class="social-share">
+    <div class="social-share" style="margin-top: 40px;">
       <a href="https://x.com/purplepepes0l?s=21" target="_blank"><img src="x_icon.png" alt="X"></a>
       <a href="https://www.facebook.com/share/g/15oN9pyr4w/?mibextid=wwXIfr" target="_blank"><img src="facebook_icon.png" alt="Facebook"></a>
       <a href="https://www.instagram.com/purplepepes0l?igsh=a2Q2NDRjc2lrbjEz" target="_blank"><img src="instagram_icon.png" alt="Instagram"></a>
@@ -83,14 +105,26 @@
 
   <script src="script.js" defer></script>
 
-  <!-- 🎛 Umschalten der Radiosender -->
+  <!-- 🎛 Radio-Logik -->
   <script>
     const audio = document.getElementById("pepe-radio");
     const select = document.getElementById("station-select");
 
     select.addEventListener("change", () => {
+      audio.pause();
       audio.src = select.value;
-      audio.play();
+      audio.load();
+      audio.play().catch(err => {
+        console.warn("Autoplay wurde blockiert 😤", err);
+      });
+    });
+  </script>
+
+  <!-- 💡 Splash-Screen ausblenden -->
+  <script>
+    window.addEventListener('load', () => {
+      const splash = document.getElementById('splash');
+      if (splash) splash.classList.add('hidden');
     });
   </script>
 </body>
