@@ -6,145 +6,72 @@
   <title>Purple Pepe Donation Tracker</title>
   <link rel="stylesheet" href="style.css" />
 
+  <!-- 🌐 Open Graph Meta Tags für Social Media Vorschau -->
+  <meta property="og:title" content="Purple Pepe Donation Tracker">
+  <meta property="og:description" content="Spende an das lila Meme-Projekt auf Solana – Ziel: $20.000 🚀">
+  <meta property="og:image" content="https://i.imgur.com/cc4aEnK.png">
+  <meta property="og:url" content="https://purple-pepe-bunker.onrender.com">
+  <meta property="og:type" content="website">
+
+  <!-- 🐦 Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Purple Pepe Donation Tracker">
+  <meta name="twitter:description" content="Spende an das lila Meme-Projekt auf Solana – Ziel: $20.000 🚀">
+  <meta name="twitter:image" content="https://i.imgur.com/cc4aEnK.png">
+
+  <!-- Wallet & Token Libraries -->
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+  <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+  <!-- Inline Styles für Splash -->
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: url('https://i.imgur.com/O1aFt2n.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: white;
-      text-align: center;
-    }
-
-    .container {
-      padding: 20px;
-      backdrop-filter: blur(4px);
-    }
-
-    .progress-bar {
-      width: 80%;
-      height: 20px;
-      background: #222;
-      border-radius: 10px;
-      margin: 20px auto;
-      overflow: hidden;
-    }
-
-    .progress-fill {
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
       height: 100%;
-      background: linear-gradient(to right, cyan, magenta);
-      width: 0%;
-      transition: width 0.5s ease-in-out;
-    }
-
-    .glow-box {
-      margin: 10px;
-      padding: 10px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 10px;
-      display: inline-block;
-    }
-
-    .qr-section canvas {
-      margin-top: 20px;
-      background: white;
-      padding: 10px;
-      border-radius: 10px;
-    }
-
-    .wallet-container {
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    .donate-buttons {
-      margin-top: 20px;
-    }
-
-    .donate-button {
-      background: #8000ff;
+      background: black;
       color: white;
-      padding: 10px 20px;
-      margin: 10px;
-      text-decoration: none;
-      border-radius: 10px;
-      display: inline-block;
-      font-weight: bold;
-    }
-
-    .planet-radio {
-      margin-top: 40px;
-    }
-
-    .planet-bar {
+      font-size: 2rem;
       display: flex;
+      align-items: center;
       justify-content: center;
-      flex-wrap: wrap;
-      gap: 30px;
-      margin-top: 20px;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
     }
-
-    .planet {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #fff, #000);
-      box-shadow: 0 0 20px #fff, 0 0 40px #fff;
-      animation: pulse 3s infinite ease-in-out;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-
-    .planet:hover {
-      transform: scale(1.2);
-    }
-
-    .planet:nth-child(1) {
-      background: radial-gradient(circle at 30% 30%, #ff00ff, #4b0082);
-      box-shadow: 0 0 25px #ff00ff, 0 0 50px #ff00ff;
-    }
-
-    .planet:nth-child(2) {
-      background: radial-gradient(circle at 30% 30%, #00ffff, #006666);
-      box-shadow: 0 0 25px #00ffff, 0 0 50px #00ffff;
-    }
-
-    .planet:nth-child(3) {
-      background: radial-gradient(circle at 30% 30%, #ffff00, #999900);
-      box-shadow: 0 0 25px #ffff00, 0 0 50px #ffff00;
-    }
-
-    .planet:nth-child(4) {
-      background: radial-gradient(circle at 30% 30%, #ff3300, #990000);
-      box-shadow: 0 0 25px #ff3300, 0 0 50px #ff3300;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+    #splash.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 </head>
 
 <body>
+  <!-- Splashscreen -->
+  <div id="splash">Loading...</div>
+
   <div class="container">
-    <h1>Purple Pepe Donation Tracker</h1>
+    <h1 class="title">Purple Pepe Donation Tracker</h1>
 
     <div class="progress-bar">
       <div class="progress-fill" id="progress-fill-1"></div>
     </div>
 
-    <div class="glow-box" id="current-amount">$0.00</div>
-    <div class="glow-box" id="last-updated">Letztes Update: --:--:--</div>
-    <div class="glow-box">$20,000 Ziel</div>
+    <div id="progress-info">
+      <div class="glow-box" id="current-amount">$0.00</div>
+      <div class="glow-box" id="last-updated">Letztes Update: --:--:--</div>
+      <div class="glow-box" id="goal-amount">$20,000</div>
+    </div>
 
     <div class="qr-section">
       <canvas id="wallet-qr"></canvas>
       <div class="wallet-container">
-        <span id="wallet-address">9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn</span><br>
-        <button onclick="copyWallet()">📋 Kopieren</button>
+        <span id="wallet-address" class="glow-box single-line">
+          9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn
+        </span>
+        <button id="copy-button" title="Adresse kopieren">📋</button>
       </div>
     </div>
 
@@ -153,60 +80,57 @@
       <a href="#" id="donate-purpe" class="donate-button">Donation PURPE</a>
     </div>
 
-    <div class="planet-radio">
-      <h2>🪐 Purple Pepe Radio</h2>
-      <div class="planet-bar">
-        <div class="planet" data-src="https://streams.ilovemusic.de/iloveradio14.mp3"></div>
-        <div class="planet" data-src="http://listen.181fm.com/181-beat_64k.aac"></div>
-        <div class="planet" data-src="http://listen.181fm.com/181-reggae_64k.aac"></div>
-        <div class="planet" data-src="http://listen.181fm.com/181-rock_64k.aac"></div>
-      </div>
+    <!-- 🎧 Purple Pepe Radio -->
+    <div id="radio-wrapper" style="text-align: center; margin-top: 40px;">
+      <h2 style="color: #fff;">🎧 Purple Pepe Radio</h2>
+      <select id="station-select" style="padding: 10px; font-size: 16px; border-radius: 6px;">
+        <option value="https://streams.ilovemusic.de/iloveradio14.mp3">🧘 Lofi Girl (Live)</option>
+        <option value="http://listen.181fm.com/181-beat_64k.aac">🎤 181.fm – The Beat (HipHop)</option>
+        <option value="http://listen.181fm.com/181-reggae_64k.aac">🇯🇲 181.fm – Reggae Roots</option>
+        <option value="http://listen.181fm.com/181-rock_64k.aac">🎸 181.fm – Rock 181</option>
+      </select>
+      <br /><br />
+      <audio id="pepe-radio" controls autoplay style="width: 80%; max-width: 400px;">
+        <source src="https://streams.ilovemusic.de/iloveradio14.mp3" type="audio/mpeg">
+        Dein Browser kann Purple Pepe Radio nicht abspielen.
+      </audio>
+    </div>
+
+    <div class="social-share" style="margin-top: 40px;">
+      <a href="https://x.com/purplepepes0l?s=21" target="_blank"><img src="x_icon.png" alt="X"></a>
+      <a href="https://www.facebook.com/share/g/15oN9pyr4w/?mibextid=wwXIfr" target="_blank"><img src="facebook_icon.png" alt="Facebook"></a>
+      <a href="https://www.instagram.com/purplepepes0l?igsh=a2Q2NDRjc2lrbjEz" target="_blank"><img src="instagram_icon.png" alt="Instagram"></a>
+      <a href="https://www.tiktok.com/@purpe.factory?_t=ZN-8vweUeJUFPC&_r=1" target="_blank"><img src="tiktok_icon.png" alt="TikTok"></a>
+      <a href="https://t.me/Purpe_SOL" target="_blank"><img src="telegram_icon.png" alt="Telegram"></a>
     </div>
   </div>
 
-  <audio id="player" autoplay></audio>
+  <!-- Dein Hauptscript -->
+  <script src="script.js" defer></script>
 
+  <!-- 🎛 Radio Umschaltung -->
   <script>
-    const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-    new QRious({
-      element: document.getElementById('wallet-qr'),
-      value: `solana:${walletAddress}`,
-      size: 200,
-      background: 'white',
-      foreground: '#8000ff'
-    });
+    document.addEventListener("DOMContentLoaded", () => {
+      const audio = document.getElementById("pepe-radio");
+      const select = document.getElementById("station-select");
 
-    function copyWallet() {
-      navigator.clipboard.writeText(walletAddress).then(() => alert("Wallet copied"));
-    }
-
-    document.getElementById("donate-sol").addEventListener("click", () => {
-      const link = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation`;
-      window.location.href = link;
-    });
-
-    document.getElementById("donate-purpe").addEventListener("click", () => {
-      const link = `solana:${walletAddress}?amount=3000000&spl-token=HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL&label=Purple%20Pepe%20Donation`;
-      window.location.href = link;
-    });
-
-    const planets = document.querySelectorAll('.planet');
-    const player = document.getElementById('player');
-
-    planets.forEach(planet => {
-      planet.addEventListener('click', () => {
-        const src = planet.getAttribute('data-src');
-        player.src = src;
-        player.play();
+      select.addEventListener("change", () => {
+        audio.pause();
+        audio.src = select.value;
+        audio.load();
+        audio.play().catch(err => {
+          console.warn("Autoplay blockiert", err);
+        });
       });
     });
+  </script>
 
-    // Dummy data for tracker fill
-    const dummyUSD = 13543.67;
-    const percent = (dummyUSD / 20000) * 100;
-    document.getElementById("progress-fill-1").style.width = percent + "%";
-    document.getElementById("current-amount").textContent = "$" + dummyUSD.toFixed(2);
-    document.getElementById("last-updated").textContent = "Letztes Update: " + new Date().toLocaleTimeString();
+  <!-- 🧼 Splash entfernen -->
+  <script>
+    window.addEventListener('load', () => {
+      const splash = document.getElementById('splash');
+      if (splash) splash.classList.add('hidden');
+    });
   </script>
 </body>
 </html>
