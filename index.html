@@ -3,133 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Purple Pepe Donation Tracker</title>
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- 🌐 Open Graph Meta Tags für Social Media Vorschau -->
-  <meta property="og:title" content="Purple Pepe Donation Tracker">
-  <meta property="og:description" content="Spende an das lila Meme-Projekt auf Solana – Ziel: $20.000 🚀">
-  <meta property="og:image" content="https://i.imgur.com/cc4aEnK.png">
-  <meta property="og:url" content="https://purple-pepe-bunker.onrender.com">
-  <meta property="og:type" content="website">
-
-  <!-- 🐦 Twitter Card Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Purple Pepe Donation Tracker">
-  <meta name="twitter:description" content="Spende an das lila Meme-Projekt auf Solana – Ziel: $20.000 🚀">
-  <meta name="twitter:image" content="https://i.imgur.com/cc4aEnK.png">
-
-  <!-- Wallet & Token Libraries -->
-  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
-  <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-
-  <!-- Inline Styles für Splash -->
+  <title>Purple Pepe Radio</title>
   <style>
-    #splash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
+    body {
+      background: #1a001f;
+      font-family: 'Segoe UI', sans-serif;
       color: white;
-      font-size: 2rem;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease;
+      padding: 30px 10px;
     }
-    #splash.hidden {
-      opacity: 0;
-      pointer-events: none;
+
+    h2 {
+      color: #fff;
+      margin-bottom: 20px;
+      font-size: 2rem;
+      text-shadow: 0 0 10px #ff00ff;
+    }
+
+    .radio-grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .radio-station {
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #6b00b6, #a900ff);
+      border-radius: 14px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 0 12px #a900ff;
+      text-align: center;
+      width: 100%;
+    }
+
+    .radio-station span {
+      display: block;
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .radio-station:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 18px #ff00ff;
+    }
+
+    .radio-station.active {
+      background: linear-gradient(135deg, #ff00ff, #9900cc);
+      box-shadow: 0 0 25px #ff00ff;
+    }
+
+    audio {
+      margin-top: 30px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 0 12px #6b00b6;
+      border-radius: 8px;
     }
   </style>
 </head>
 
 <body>
-  <!-- Splashscreen -->
-  <div id="splash">Loading...</div>
+  <h2>🎧 Purple Pepe Radio</h2>
 
-  <div class="container">
-    <h1 class="title">Purple Pepe Donation Tracker</h1>
-
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress-fill-1"></div>
+  <div class="radio-grid">
+    <div class="radio-station" data-src="https://alphaboys-live.streamguys1.com/alphaboys.aac">
+      🎺 <strong>Purple Kingston</strong>
+      <span>Reggae aus der Metaverse-Yard 🇯🇲</span>
     </div>
 
-    <div id="progress-info">
-      <div class="glow-box" id="current-amount">$0.00</div>
-      <div class="glow-box" id="last-updated">Letztes Update: --:--:--</div>
-      <div class="glow-box" id="goal-amount">$20,000</div>
+    <div class="radio-station" data-src="https://streams.ilovemusic.de/iloveradio14.mp3">
+      🌙 <strong>Purpe Vibes</strong>
+      <span>LoFi für Wallet-Heilung & DAO-Kater</span>
     </div>
 
-    <div class="qr-section">
-      <canvas id="wallet-qr"></canvas>
-      <div class="wallet-container">
-        <span id="wallet-address" class="glow-box single-line">
-          9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn
-        </span>
-        <button id="copy-button" title="Adresse kopieren">📋</button>
-      </div>
+    <div class="radio-station" data-src="http://listen.181fm.com/181-beat_64k.aac">
+      🔊 <strong>Purpe Flowchain</strong>
+      <span>Web3-Bars & Beats für degen movers</span>
     </div>
 
-    <div class="donate-buttons">
-      <a href="#" id="donate-sol" class="donate-button">Donation SOL</a>
-      <a href="#" id="donate-purpe" class="donate-button">Donation PURPE</a>
-    </div>
-
-    <!-- 🎧 Purple Pepe Radio -->
-    <div id="radio-wrapper" style="text-align: center; margin-top: 40px;">
-      <h2 style="color: #fff;">🎧 Purple Pepe Radio</h2>
-      <select id="station-select" style="padding: 10px; font-size: 16px; border-radius: 6px;">
-        <option value="https://alphaboys-live.streamguys1.com/alphaboys.aac">🎺 Alpha Boys School Radio (Jamaica)</option>
-        <option value="https://streams.ilovemusic.de/iloveradio14.mp3">🧘 Lofi Girl (Live)</option>
-        <option value="http://listen.181fm.com/181-beat_64k.aac">🎤 181.fm – The Beat (HipHop)</option>
-        <option value="http://listen.181fm.com/181-rock_64k.aac">🎸 181.fm – Rock 181</option>
-      </select>
-      <br /><br />
-      <audio id="pepe-radio" controls autoplay style="width: 80%; max-width: 400px;">
-        <source src="https://alphaboys-live.streamguys1.com/alphaboys.aac" type="audio/aac">
-        Dein Browser kann Purple Pepe Radio nicht abspielen.
-      </audio>
-    </div>
-
-    <div class="social-share" style="margin-top: 40px;">
-      <a href="https://x.com/purplepepes0l?s=21" target="_blank"><img src="x_icon.png" alt="X"></a>
-      <a href="https://www.facebook.com/share/g/15oN9pyr4w/?mibextid=wwXIfr" target="_blank"><img src="facebook_icon.png" alt="Facebook"></a>
-      <a href="https://www.instagram.com/purplepepes0l?igsh=a2Q2NDRjc2lrbjEz" target="_blank"><img src="instagram_icon.png" alt="Instagram"></a>
-      <a href="https://www.tiktok.com/@purpe.factory?_t=ZN-8vweUeJUFPC&_r=1" target="_blank"><img src="tiktok_icon.png" alt="TikTok"></a>
-      <a href="https://t.me/Purpe_SOL" target="_blank"><img src="telegram_icon.png" alt="Telegram"></a>
+    <div class="radio-station" data-src="http://listen.181fm.com/181-rock_64k.aac">
+      🎸 <strong>Ribbit Rock</strong>
+      <span>Frosch mit Gitarre. Mehr musst du nicht wissen.</span>
     </div>
   </div>
 
-  <!-- Dein Hauptscript -->
-  <script src="script.js" defer></script>
+  <audio id="pepe-radio" controls autoplay>
+    <source src="https://alphaboys-live.streamguys1.com/alphaboys.aac" type="audio/aac">
+    Dein Browser kann Purple Pepe Radio nicht abspielen.
+  </audio>
 
-  <!-- 🎛 Radio Umschaltung -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      const stations = document.querySelectorAll(".radio-station");
       const audio = document.getElementById("pepe-radio");
-      const select = document.getElementById("station-select");
 
-      select.addEventListener("change", () => {
-        audio.pause();
-        audio.src = select.value;
-        audio.load();
-        audio.play().catch(err => {
-          console.warn("Autoplay blockiert", err);
+      stations.forEach(station => {
+        station.addEventListener("click", () => {
+          stations.forEach(s => s.classList.remove("active"));
+          station.classList.add("active");
+
+          const src = station.getAttribute("data-src");
+          audio.pause();
+          audio.src = src;
+          audio.load();
+          audio.play().catch(err => {
+            console.warn("Autoplay blockiert", err);
+          });
         });
       });
-    });
-  </script>
 
-  <!-- 🧼 Splash entfernen -->
-  <script>
-    window.addEventListener('load', () => {
-      const splash = document.getElementById('splash');
-      if (splash) splash.classList.add('hidden');
+      stations[0].classList.add("active");
     });
   </script>
 </body>
