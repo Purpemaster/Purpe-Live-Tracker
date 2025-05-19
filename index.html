@@ -78,14 +78,14 @@
       <a href="#" id="donate-purpe" class="donate-button">Donation PURPE</a>
     </div>
 
-    <!-- 🎧 Purple Pepe Radio (funktionierende Version) -->
+    <!-- 🎧 Purple Pepe Radio (aktualisiert) -->
     <div id="radio-wrapper" style="text-align: center; margin-top: 40px;">
       <h2 style="color: #fff;">🎧 Purple Pepe Radio</h2>
       <select id="station-select" style="padding: 10px; font-size: 16px; border-radius: 6px;">
         <option value="https://streams.ilovemusic.de/iloveradio14.mp3">🧘 Lofi Girl (Live)</option>
-        <option value="https://icecast.retrowavesynthwave.com/retrowave">🚀 Synthwave FM</option>
-        <option value="https://us4.internet-radio.com:8266/stream">🔥 Chillhop Beats</option>
-        <option value="https://streaming.radionomy.com/TrapNationRadio">🎤 Trap Nation</option>
+        <option value="https://ice10.securenetsystems.net/WBHH">🎤 PowerHitz (HipHop USA)</option>
+        <option value="https://reggae141.radioca.st/stream">🇯🇲 Reggae141 (Jamaica)</option>
+        <option value="http://listen.181fm.com/181-rock_64k.aac">🎸 181.fm - Rock Radio</option>
       </select>
       <br /><br />
       <audio id="pepe-radio" controls autoplay style="width: 80%; max-width: 400px;">
@@ -105,22 +105,24 @@
 
   <script src="script.js" defer></script>
 
-  <!-- 🎛 Radio-Logik -->
+  <!-- 🎵 Radio Umschaltung -->
   <script>
-    const audio = document.getElementById("pepe-radio");
-    const select = document.getElementById("station-select");
+    document.addEventListener("DOMContentLoaded", () => {
+      const audio = document.getElementById("pepe-radio");
+      const select = document.getElementById("station-select");
 
-    select.addEventListener("change", () => {
-      audio.pause();
-      audio.src = select.value;
-      audio.load();
-      audio.play().catch(err => {
-        console.warn("Autoplay wurde blockiert 😤", err);
+      select.addEventListener("change", () => {
+        audio.pause();
+        audio.src = select.value;
+        audio.load();
+        audio.play().catch(err => {
+          console.warn("Autoplay blockiert", err);
+        });
       });
     });
   </script>
 
-  <!-- 💡 Splash-Screen ausblenden -->
+  <!-- ✅ Splash-Screen sauber entfernen -->
   <script>
     window.addEventListener('load', () => {
       const splash = document.getElementById('splash');
