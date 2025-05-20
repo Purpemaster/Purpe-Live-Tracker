@@ -5,11 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
   const goalUSD = 20000;
 
-  // Splash screen fade out
+  // Fade out splash screen after 2 seconds
   setTimeout(() => {
     const splash = document.getElementById("splash");
-    if (splash) splash.remove();
-  }, 3000);
+    if (splash) splash.classList.add("hidden");
+  }, 2000);
 
   // Generate QR code
   new QRious({
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
   }
 
-  // Update everything
+  // Update all donation data
   async function updateTracker() {
     try {
       const [wallet, solPrice, purpePriceUSD] = await Promise.all([
@@ -139,10 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Activate first station by default
+  // Default to first station
   stations[0].classList.add("active");
 
-  // Run tracker loop
+  // Start update loop
   updateTracker();
   setInterval(updateTracker, 30000);
 });
