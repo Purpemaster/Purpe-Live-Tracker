@@ -1,11 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("script.js loaded ✅");
-
   const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
   const heliusApiKey = "9cf905ed-105d-46a7-b7fa-7440388b6e9f";
   const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
   const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
   const goalUSD = 20000;
+
+  // Splash entfernen nach 3 Sek.
+  setTimeout(() => {
+    const splash = document.getElementById("splash");
+    const main = document.getElementById("main-content");
+    if (splash && main) {
+      splash.classList.add("hidden");
+      setTimeout(() => {
+        splash.remove();
+        main.style.display = "block";
+        document.body.style.overflowY = "auto";
+      }, 800);
+    }
+  }, 3000);
 
   new QRious({
     element: document.getElementById("wallet-qr"),
@@ -20,8 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
       const data = await res.json();
       return data.solana.usd || 0;
-    } catch (err) {
-      console.error("SOL price fetch error:", err);
+    } catch {
       return 0;
     }
   }
@@ -31,8 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${RAYDIUM_POOL}`);
       const data = await res.json();
       return parseFloat(data.data.attributes.base_token_price_usd);
-    } catch (err) {
-      console.error("PURPE price fetch error:", err);
+    } catch {
       return 0;
     }
   }
@@ -45,8 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const purpeToken = (data.tokens || []).find(t => t.mint === PURPE_MINT);
       const purpeBalance = purpeToken ? purpeToken.amount / Math.pow(10, purpeToken.decimals || 6) : 0;
       return { solBalance, purpeBalance };
-    } catch (err) {
-      console.error("Wallet balance fetch error:", err);
+    } catch {
       return { solBalance: 0, purpeBalance: 0 };
     }
   }
@@ -82,9 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("copy-button").addEventListener("click", () => {
     const addr = document.getElementById("wallet-address").textContent.trim();
-    navigator.clipboard.writeText(addr)
-      .then(() => alert("Wallet address copied!"))
-      .catch(() => alert("Copy failed."));
+    navigator.clipboard.writeText(addr).then(() => alert("Wallet address copied!"));
   });
 
   const audio = document.getElementById("pepe-radio");
@@ -98,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
       audio.pause();
       audio.src = src;
       audio.load();
-      audio.play().catch(err => console.warn("Autoplay blocked:", err));
+      audio.play().catch(() => {});
     });
   });
 
