@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -21,8 +21,8 @@
 
     <div id="progress-info">
       <div class="glow-box" id="current-amount">$0.00</div>
-      <div class="glow-box" id="last-updated">Letztes Update: --:--</div>
-      <div class="glow-box" id="goal-amount">$20,000</div>
+      <div class="glow-box" id="last-updated">Last update: --:--</div>
+      <div class="glow-box" id="goal-amount">Goal: $20,000</div>
     </div>
 
     <div class="qr-section">
@@ -31,40 +31,39 @@
         <span id="wallet-address" class="glow-box single-line">
           9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn
         </span>
-        <button id="copy-button" title="Adresse kopieren">📋</button>
+        <button id="copy-button" title="Copy address">📋</button>
       </div>
     </div>
 
     <div class="donate-buttons">
-      <a href="#" id="donate-sol" class="donate-button">Donation SOL</a>
-      <a href="#" id="donate-purpe" class="donate-button">Donation PURPE</a>
+      <a href="#" id="donate-sol" class="donate-button neon-button">Donate SOL</a>
+      <a href="#" id="donate-purpe" class="donate-button neon-button">Donate PURPE</a>
     </div>
 
-    <h2 style="margin-top: 50px;">🎧 Purple Pepe Radio</h2>
+    <h2 class="radio-title">🎧 Purple Pepe Radio</h2>
 
     <div class="radio-grid">
       <div class="radio-station" data-src="https://alphaboys-live.streamguys1.com/alphaboys.aac">
         🎺 <strong>Purple Kingston</strong>
-        <span>Reggae aus der Metaverse-Yard 🇯🇲</span>
+        <span>Reggae from the metaverse yard 🇯🇲</span>
       </div>
 
       <div class="radio-station" data-src="https://streams.ilovemusic.de/iloveradio14.mp3">
         🌙 <strong>Purpe Vibes</strong>
-        <span>LoFi für Wallet-Heilung & DAO-Kater</span>
+        <span>LoFi for wallet healing & DAO hangovers</span>
       </div>
 
       <div class="radio-station" data-src="http://listen.181fm.com/181-beat_64k.aac">
         🎤 <strong>Purpe Flowchain</strong>
-        <span>Web3-Bars & Beats für degen movers</span>
+        <span>Web3 beats for degens on the move</span>
       </div>
 
       <div class="radio-station" data-src="http://listen.181fm.com/181-rock_64k.aac">
         🎸 <strong>Ribbit Rock</strong>
-        <span>Frosch mit Gitarre. Mehr musst du nicht wissen.</span>
+        <span>Frog with a guitar. That’s all you need to know.</span>
       </div>
     </div>
 
-    <!-- 🔊 WICHTIG: Kein <source> hier drin! -->
     <audio id="pepe-radio" controls autoplay></audio>
   </div>
 </body>
