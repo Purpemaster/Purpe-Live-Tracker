@@ -1,33 +1,26 @@
-// Show tracker only after full load
-window.onload = () => {
-  setTimeout(() => {
-    const splash = document.getElementById("splash");
-    const main = document.getElementById("main-content");
-
-    if (splash && main) {
-      splash.classList.add("hidden");
-      main.classList.remove("hidden");
-      document.body.classList.add("loaded");
-    } else {
-      console.error("Splash or Main Content not found.");
-    }
-  }, 4000);
-};
-
-// Logic after DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("script.js loaded ✅");
+
   const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
   const heliusApiKey = "9cf905ed-105d-46a7-b7fa-7440388b6e9f";
   const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
   const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
+
   const goalUSD = 20000;
+
+  // Splash Timeout
+  setTimeout(() => {
+    document.getElementById("splash").classList.add("hidden");
+    document.getElementById("main-content").classList.remove("hidden");
+    console.log("Splash hidden ✅");
+  }, 4000);
 
   new QRious({
     element: document.getElementById("wallet-qr"),
     value: `solana:${walletAddress}`,
     size: 200,
-    background: 'white',
-    foreground: '#8000ff'
+    background: "white",
+    foreground: "#8000ff"
   });
 
   async function fetchSolPrice() {
@@ -40,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function fetchPurpePriceUSD() {
+  async function fetchPurpePrice() {
     try {
       const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${RAYDIUM_POOL}`);
       const data = await res.json();
@@ -55,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
       const data = await res.json();
       const tokens = data.tokens || [];
-      const solBalance = (data.nativeBalance || 0) / 1_000_000_000;
+      const solBalance = data.nativeBalance / 1e9;
       const purpeToken = tokens.find(t => t.mint === PURPE_MINT);
       const purpeBalance = purpeToken ? purpeToken.amount / Math.pow(10, purpeToken.decimals || 6) : 0;
       return { solBalance, purpeBalance };
@@ -64,57 +57,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function updateProgress(totalUSD) {
-    const percent = Math.min((totalUSD / goalUSD) * 100, 100);
-    document.getElementById("progress-fill-1").style.width = `${percent}%`;
-    document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
-  }
-
   async function updateTracker() {
-    const [wallet, solPrice, purpePriceUSD] = await Promise.all([
+    const [wallet, solPrice, purpePrice] = await Promise.all([
       fetchWalletBalances(),
       fetchSolPrice(),
-      fetchPurpePriceUSD()
+      fetchPurpePrice()
     ]);
-
-    const solUSD = wallet.solBalance * solPrice;
-    const purpeUSD = wallet.purpeBalance * purpePriceUSD;
-    const totalUSD = solUSD + purpeUSD;
-
-    updateProgress(totalUSD);
-
-    const now = new Date();
-    document.getElementById("last-updated").textContent =
-      `Last update: ${now.toLocaleTimeString("en-US", { hour12: false })}`;
+    const totalUSD = wallet.solBalance * solPrice + wallet.purpeBalance * purpePrice;
+    document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
+    const percent = Math.min((totalUSD / goalUSD) * 100, 100);
+    document.getElementById("progress-fill-1").style.width = `${percent}%`;
+    const now = new Date().toLocaleTimeString("en-US", { hour12: false });
+    document.getElementById("last-updated").textContent = `Last update: ${now}`;
   }
 
-  document.getElementById("donate-sol").addEventListener("click", () => {
-    window.location.href = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation&message=Thanks%20for%20supporting!`;
-  });
+  document.getElementById("donate-sol").onclick = () => {
+    window.location.href = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation`;
+  };
 
-  document.getElementById("donate-purpe").addEventListener("click", () => {
-    window.location.href = `solana:${walletAddress}?amount=3000000&spl-token=${PURPE_MINT}&label=Purple%20Pepe%20Donation&message=Thanks%20for%20your%20PURPE%20support!`;
-  });
+  document.getElementById("donate-purpe").onclick = () => {
+    window.location.href = `solana:${walletAddress}?amount=3000000&spl-token=${PURPE_MINT}`;
+  };
 
-  document.getElementById("copy-button").addEventListener("click", () => {
+  document.getElementById("copy-button").onclick = () => {
     const addr = document.getElementById("wallet-address").textContent.trim();
-    navigator.clipboard.writeText(addr).then(() => alert("Wallet address copied!"));
-  });
+    navigator.clipboard.writeText(addr).then(() => alert("Copied!"));
+  };
 
   const audio = document.getElementById("pepe-radio");
   const stations = document.querySelectorAll(".radio-station");
-
   stations.forEach(station => {
     station.addEventListener("click", () => {
       stations.forEach(s => s.classList.remove("active"));
       station.classList.add("active");
+      const src = station.getAttribute("data-src");
       audio.pause();
-      audio.src = station.getAttribute("data-src");
+      audio.src = src;
       audio.load();
-      audio.play().catch(() => {});
+      audio.play().catch(console.warn);
     });
   });
-
   stations[0].classList.add("active");
 
   updateTracker();
