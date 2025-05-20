@@ -5,14 +5,17 @@
 }
 
 html, body {
-  min-height: 100vh;
+  height: 100%;
   font-family: 'Orbitron', sans-serif;
   background: url('pepe_background.png') center center / cover no-repeat fixed;
   animation: backgroundFloat 18s ease-in-out infinite;
   color: #fff;
   text-align: center;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden; /* prevent scroll during splash */
+}
+
+body.loaded {
+  overflow: auto; /* enable scroll after splash */
 }
 
 @keyframes backgroundFloat {
