@@ -5,13 +5,12 @@
 }
 
 html, body {
-  min-height: 100vh;
+  height: 100%;
   font-family: 'Orbitron', sans-serif;
   background: url('pepe_background.png') center center / cover no-repeat fixed;
   animation: backgroundFloat 18s ease-in-out infinite;
   color: white;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   text-align: center;
 }
 
@@ -21,10 +20,37 @@ html, body {
   100% { transform: translateY(0px) scale(1); }
 }
 
+#splash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.8s ease;
+}
+
+#splash img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 20px;
+  box-shadow: 0 0 30px #ff00ff;
+}
+
+#splash.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .container {
-  padding: 40px 20px;
+  width: 90%;
   max-width: 700px;
   margin: 0 auto;
+  padding: 40px 20px;
 }
 
 .title {
