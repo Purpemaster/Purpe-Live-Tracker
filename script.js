@@ -5,16 +5,19 @@ window.addEventListener("load", () => {
   const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
   const goalUSD = 20000;
 
-  // Splash → Main
+  // Splash entfernen nach 4 Sekunden
   setTimeout(() => {
     const splash = document.getElementById("splash");
     const main = document.getElementById("main-content");
-    splash.classList.add("hidden");
-    main.classList.remove("hidden");
-    document.body.classList.add("loaded");
+
+    if (splash && main) {
+      splash.classList.add("hidden");
+      main.classList.remove("hidden");
+      document.body.classList.add("loaded");
+    }
   }, 4000);
 
-  // QR Code
+  // QR generieren
   new QRious({
     element: document.getElementById("wallet-qr"),
     value: `solana:${walletAddress}`,
@@ -81,7 +84,6 @@ window.addEventListener("load", () => {
       `Last update: ${now.toLocaleTimeString("en-US", { hour12: false })}`;
   }
 
-  // Donate buttons
   document.getElementById("donate-sol").addEventListener("click", () => {
     window.location.href = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation&message=Thanks%20for%20supporting!`;
   });
@@ -90,13 +92,11 @@ window.addEventListener("load", () => {
     window.location.href = `solana:${walletAddress}?amount=3000000&spl-token=${PURPE_MINT}&label=Purple%20Pepe%20Donation&message=Thanks%20for%20your%20PURPE%20support!`;
   });
 
-  // Copy wallet address
   document.getElementById("copy-button").addEventListener("click", () => {
     const addr = document.getElementById("wallet-address").textContent.trim();
     navigator.clipboard.writeText(addr).then(() => alert("Wallet address copied!"));
   });
 
-  // Radio switch
   const audio = document.getElementById("pepe-radio");
   const stations = document.querySelectorAll(".radio-station");
 
