@@ -1,25 +1,5 @@
-// Splash screen removal AFTER full page (incl. GIF) is loaded
-window.addEventListener("load", () => {
-  console.log("window loaded ✅");
-
-  setTimeout(() => {
-    const splash = document.getElementById("splash");
-    const main = document.getElementById("main-content");
-
-    if (splash && main) {
-      splash.classList.add("hidden");
-      main.classList.remove("hidden");
-      document.body.classList.add("loaded");
-      console.log("Splash removed ✅");
-    } else {
-      console.error("Splash or main-content not found");
-    }
-  }, 4000);
-});
-
-// Donation tracker + logic after DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("script.js running ✅");
+  console.log("script.js loaded ✅");
 
   const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
   const heliusApiKey = "9cf905ed-105d-46a7-b7fa-7440388b6e9f";
@@ -27,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
   const goalUSD = 20000;
 
-  // Create QR code
   new QRious({
     element: document.getElementById("wallet-qr"),
     value: `solana:${walletAddress}`,
@@ -36,31 +15,28 @@ document.addEventListener("DOMContentLoaded", () => {
     foreground: "#8000ff"
   });
 
-  // Fetch SOL price from CoinGecko
   async function fetchSolPrice() {
     try {
       const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
       const data = await res.json();
       return data.solana.usd || 0;
     } catch (err) {
-      console.error("Error fetching SOL price:", err);
+      console.error("SOL price fetch error:", err);
       return 0;
     }
   }
 
-  // Fetch PURPE price from GeckoTerminal
   async function fetchPurpePrice() {
     try {
       const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${RAYDIUM_POOL}`);
       const data = await res.json();
       return parseFloat(data.data.attributes.base_token_price_usd);
     } catch (err) {
-      console.error("Error fetching PURPE price:", err);
+      console.error("PURPE price fetch error:", err);
       return 0;
     }
   }
 
-  // Get wallet balances via Helius
   async function fetchWalletBalances() {
     try {
       const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
@@ -70,12 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const purpeBalance = purpeToken ? purpeToken.amount / Math.pow(10, purpeToken.decimals || 6) : 0;
       return { solBalance, purpeBalance };
     } catch (err) {
-      console.error("Error fetching wallet balances:", err);
+      console.error("Wallet balance fetch error:", err);
       return { solBalance: 0, purpeBalance: 0 };
     }
   }
 
-  // Update the tracker bar and text
   async function updateTracker() {
     const [wallet, solPrice, purpePrice] = await Promise.all([
       fetchWalletBalances(),
@@ -95,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `Last update: ${now.toLocaleTimeString("en-US", { hour12: false })}`;
   }
 
-  // Set up donation buttons
   document.getElementById("donate-sol").addEventListener("click", () => {
     const url = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation&message=Thanks%20for%20supporting!`;
     window.location.href = url;
@@ -106,7 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = url;
   });
 
-  // Copy wallet address
   document.getElementById("copy-button").addEventListener("click", () => {
     const addr = document.getElementById("wallet-address").textContent.trim();
     navigator.clipboard.writeText(addr)
@@ -114,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(() => alert("Copy failed."));
   });
 
-  // Radio switching
   const audio = document.getElementById("pepe-radio");
   const stations = document.querySelectorAll(".radio-station");
 
@@ -132,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   stations[0].classList.add("active");
 
-  // Start tracker updates
   updateTracker();
   setInterval(updateTracker, 30000);
 });
