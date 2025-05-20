@@ -5,14 +5,9 @@ window.addEventListener("load", () => {
   const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
   const goalUSD = 20000;
 
-  // --- Splash remove + enable scroll ---
-  setTimeout(() => {
-    const splash = document.getElementById("splash");
-    if (splash) splash.classList.add("hidden");
-    document.body.classList.add("loaded");
-  }, 4000);
+  const splash = document.getElementById("splash");
 
-  // --- QR Code generation ---
+  // QR Code
   new QRious({
     element: document.getElementById("wallet-qr"),
     value: `solana:${walletAddress}`,
@@ -21,14 +16,18 @@ window.addEventListener("load", () => {
     foreground: '#8000ff'
   });
 
-  // --- Price fetchers ---
+  // Splash Timeout + scroll unlock
+  setTimeout(() => {
+    splash.classList.add("hidden");
+    document.body.classList.add("loaded");
+  }, 4000);
+
   async function fetchSolPrice() {
     try {
       const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
       const data = await res.json();
       return data.solana.usd || 0;
-    } catch (err) {
-      console.error("SOL price error:", err);
+    } catch {
       return 0;
     }
   }
@@ -38,13 +37,11 @@ window.addEventListener("load", () => {
       const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${RAYDIUM_POOL}`);
       const data = await res.json();
       return parseFloat(data.data.attributes.base_token_price_usd);
-    } catch (err) {
-      console.error("PURPE price error:", err);
+    } catch {
       return 0;
     }
   }
 
-  // --- Wallet Balances ---
   async function fetchWalletBalances() {
     try {
       const res = await fetch(`https://api.helius.xyz/v0/addresses/${walletAddress}/balances?api-key=${heliusApiKey}`);
@@ -54,8 +51,7 @@ window.addEventListener("load", () => {
       const purpeToken = tokens.find(t => t.mint === PURPE_MINT);
       const purpeBalance = purpeToken ? purpeToken.amount / Math.pow(10, purpeToken.decimals || 6) : 0;
       return { solBalance, purpeBalance };
-    } catch (err) {
-      console.error("Wallet balance error:", err);
+    } catch {
       return { solBalance: 0, purpeBalance: 0 };
     }
   }
@@ -67,14 +63,14 @@ window.addEventListener("load", () => {
   }
 
   async function updateTracker() {
-    const [wallet, solPrice, purpePriceUSD] = await Promise.all([
+    const [wallet, solPrice, purpePrice] = await Promise.all([
       fetchWalletBalances(),
       fetchSolPrice(),
       fetchPurpePriceUSD()
     ]);
 
     const solUSD = wallet.solBalance * solPrice;
-    const purpeUSD = wallet.purpeBalance * purpePriceUSD;
+    const purpeUSD = wallet.purpeBalance * purpePrice;
     const totalUSD = solUSD + purpeUSD;
 
     updateProgress(totalUSD);
@@ -84,7 +80,11 @@ window.addEventListener("load", () => {
       `Last update: ${now.toLocaleTimeString("en-US", { hour12: false })}`;
   }
 
-  // --- Donation buttons ---
+  // Tracker Start
+  updateTracker();
+  setInterval(updateTracker, 30000);
+
+  // Donate Buttons
   document.getElementById("donate-sol").addEventListener("click", () => {
     window.location.href = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation&message=Thanks%20for%20supporting!`;
   });
@@ -93,32 +93,27 @@ window.addEventListener("load", () => {
     window.location.href = `solana:${walletAddress}?amount=3000000&spl-token=${PURPE_MINT}&label=Purple%20Pepe%20Donation&message=Thanks%20for%20your%20PURPE%20support!`;
   });
 
-  // --- Copy wallet address ---
+  // Copy Wallet
   document.getElementById("copy-button").addEventListener("click", () => {
     const addr = document.getElementById("wallet-address").textContent.trim();
-    navigator.clipboard.writeText(addr)
-      .then(() => alert("Wallet address copied!"))
-      .catch(() => alert("Copy failed."));
+    navigator.clipboard.writeText(addr).then(() => alert("Wallet address copied!"));
   });
 
-  // --- Radio station switching ---
-  const stations = document.querySelectorAll(".radio-station");
+  // Radio
   const audio = document.getElementById("pepe-radio");
+  const stations = document.querySelectorAll(".radio-station");
 
   stations.forEach(station => {
     station.addEventListener("click", () => {
       stations.forEach(s => s.classList.remove("active"));
       station.classList.add("active");
+      const src = station.getAttribute("data-src");
       audio.pause();
-      audio.src = station.getAttribute("data-src");
+      audio.src = src;
       audio.load();
       audio.play().catch(() => {});
     });
   });
 
   stations[0].classList.add("active");
-
-  // --- Tracker auto update ---
-  updateTracker();
-  setInterval(updateTracker, 30000);
 });
