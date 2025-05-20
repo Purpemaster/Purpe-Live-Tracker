@@ -26,8 +26,8 @@ body.loaded {
 
 #splash {
   position: fixed;
-  z-index: 9999;
   inset: 0;
+  z-index: 9999;
   background: black;
   display: flex;
   flex-direction: column;
@@ -37,9 +37,8 @@ body.loaded {
 
 #splash img {
   max-height: 60vh;
-  width: auto;
   border-radius: 20px;
-  box-shadow: 0 0 20px #ff00ff;
+  box-shadow: 0 0 30px #ff00ff;
 }
 
 .splash-text {
@@ -49,8 +48,8 @@ body.loaded {
   text-shadow: 0 0 10px #ff00ff;
 }
 
-#splash.hidden {
-  display: none;
+.hidden {
+  display: none !important;
 }
 
 .container {
@@ -62,11 +61,7 @@ body.loaded {
 .title {
   font-size: 3rem;
   font-weight: bold;
-  color: #fff;
-  text-shadow:
-    0 0 10px #fff,
-    0 0 20px #a900ff,
-    0 0 30px #ff00ff;
+  text-shadow: 0 0 10px #fff, 0 0 20px #a900ff, 0 0 30px #ff00ff;
   animation: pulseTitle 2.5s ease-in-out infinite;
 }
 
