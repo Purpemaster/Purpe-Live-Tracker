@@ -2,75 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Purple Pepe Donation Tracker</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
   <script src="script.js" defer></script>
 </head>
 <body>
-
   <!-- Splashscreen -->
   <div id="splash">
-    <div class="splash-overlay"></div>
-    <h1>Loading... 🐸</h1>
+    <img src="https://media1.tenor.com/m/vJxuWLlkVo0AAAAd/pepe-purple-pepe.gif" alt="Purple Pepe" />
+    <div class="splash-text">Loading... 🐸</div>
   </div>
 
-  <!-- Main App -->
-  <div class="container">
-    <h1 class="title">Purple Pepe Donation Tracker</h1>
+  <!-- Main content -->
+  <div id="main-content" class="hidden">
+    <div class="container">
+      <h1 class="title">Purple Pepe Donation Tracker</h1>
 
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress-fill-1"></div>
-    </div>
-
-    <div id="progress-info">
-      <div class="glow-box" id="current-amount">$0.00</div>
-      <div class="glow-box" id="last-updated">Last update: --:--:--</div>
-      <div class="glow-box" id="goal-amount">$20,000</div>
-    </div>
-
-    <div class="qr-section">
-      <canvas id="wallet-qr"></canvas>
-      <div class="wallet-container">
-        <span id="wallet-address" class="glow-box single-line">
-          9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn
-        </span>
-        <button id="copy-button" title="Copy Address">📋</button>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill-1"></div>
       </div>
+
+      <div id="progress-info">
+        <div class="glow-box" id="current-amount">$0.00</div>
+        <div class="glow-box" id="last-updated">Last update: --:--:--</div>
+        <div class="glow-box" id="goal-amount">$20,000</div>
+      </div>
+
+      <div class="qr-section">
+        <canvas id="wallet-qr"></canvas>
+        <div class="wallet-container">
+          <span id="wallet-address" class="glow-box single-line">
+            9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn
+          </span>
+          <button id="copy-button" title="Copy address">📋</button>
+        </div>
+      </div>
+
+      <div class="donate-buttons">
+        <a href="#" id="donate-sol" class="donate-button">Donate SOL</a>
+        <a href="#" id="donate-purpe" class="donate-button">Donate PURPE</a>
+      </div>
+
+      <h2 class="radio-title">🎧 Purple Pepe Radio</h2>
+
+      <div class="radio-grid">
+        <div class="radio-station" data-src="https://alphaboys-live.streamguys1.com/alphaboys.aac">
+          🎺 <strong>Purple Kingston</strong>
+          <span>Reggae from the Metaverse-Yard 🇯🇲</span>
+        </div>
+        <div class="radio-station" data-src="https://streams.ilovemusic.de/iloveradio14.mp3">
+          🌙 <strong>Purpe Vibes</strong>
+          <span>LoFi for wallet healing & DAO hangovers</span>
+        </div>
+        <div class="radio-station" data-src="http://listen.181fm.com/181-beat_64k.aac">
+          🎤 <strong>Purpe Flowchain</strong>
+          <span>Web3 bars & beats for degen movers</span>
+        </div>
+        <div class="radio-station" data-src="http://listen.181fm.com/181-rock_64k.aac">
+          🎸 <strong>Ribbit Rock</strong>
+          <span>Frog with guitar. That’s it.</span>
+        </div>
+      </div>
+
+      <audio id="pepe-radio" controls autoplay>
+        <source src="https://alphaboys-live.streamguys1.com/alphaboys.aac" type="audio/aac">
+        Your browser cannot play the radio.
+      </audio>
     </div>
-
-    <div class="donate-buttons">
-      <a href="#" id="donate-sol" class="neon-button">Donate SOL</a>
-      <a href="#" id="donate-purpe" class="neon-button">Donate PURPE</a>
-    </div>
-
-    <h2 class="radio-title">🎧 Purple Pepe Radio</h2>
-
-    <div class="radio-grid">
-      <div class="radio-station" data-src="https://alphaboys-live.streamguys1.com/alphaboys.aac">
-        🎺 <strong>Purple Kingston</strong>
-        <span>Reggae from the Metaverse-Yard 🇯🇲</span>
-      </div>
-      <div class="radio-station" data-src="https://streams.ilovemusic.de/iloveradio14.mp3">
-        🌙 <strong>Purple Vibes</strong>
-        <span>LoFi for Wallet Healing & DAO Hangover</span>
-      </div>
-      <div class="radio-station" data-src="http://listen.181fm.com/181-beat_64k.aac">
-        🎤 <strong>Purple Flowchain</strong>
-        <span>Web3 Bars & Beats for Degen Movers</span>
-      </div>
-      <div class="radio-station" data-src="http://listen.181fm.com/181-rock_64k.aac">
-        🎸 <strong>Ribbit Rock</strong>
-        <span>Frog with a Guitar. That’s it.</span>
-      </div>
-    </div>
-
-    <audio id="pepe-radio" controls autoplay>
-      <source src="https://alphaboys-live.streamguys1.com/alphaboys.aac" type="audio/aac">
-      Your browser does not support Purple Pepe Radio.
-    </audio>
   </div>
-
 </body>
 </html>
