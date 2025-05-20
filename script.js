@@ -1,11 +1,5 @@
-window.addEventListener("load", () => {
-  const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
-  const heliusApiKey = "9cf905ed-105d-46a7-b7fa-7440388b6e9f";
-  const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
-  const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
-  const goalUSD = 20000;
-
-  // Splash entfernen nach 4 Sekunden
+// Show tracker only after full load
+window.onload = () => {
   setTimeout(() => {
     const splash = document.getElementById("splash");
     const main = document.getElementById("main-content");
@@ -14,10 +8,20 @@ window.addEventListener("load", () => {
       splash.classList.add("hidden");
       main.classList.remove("hidden");
       document.body.classList.add("loaded");
+    } else {
+      console.error("Splash or Main Content not found.");
     }
   }, 4000);
+};
 
-  // QR generieren
+// Logic after DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
+  const heliusApiKey = "9cf905ed-105d-46a7-b7fa-7440388b6e9f";
+  const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
+  const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
+  const goalUSD = 20000;
+
   new QRious({
     element: document.getElementById("wallet-qr"),
     value: `solana:${walletAddress}`,
