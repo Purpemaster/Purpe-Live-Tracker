@@ -6,7 +6,9 @@
   <title>Purple Pepe Donation Tracker</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+  <script src="script.js" defer></script>
 </head>
+
 <body>
   <div id="splash">Loading...</div>
 
@@ -62,12 +64,8 @@
       </div>
     </div>
 
-    <audio id="pepe-radio" controls autoplay>
-      <source src="https://alphaboys-live.streamguys1.com/alphaboys.aac" type="audio/aac">
-      Dein Browser kann Purple Pepe Radio nicht abspielen.
-    </audio>
+    <!-- 🔊 WICHTIG: Kein <source> hier drin! -->
+    <audio id="pepe-radio" controls autoplay></audio>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
