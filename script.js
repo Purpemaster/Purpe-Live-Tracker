@@ -5,7 +5,14 @@ window.addEventListener("load", () => {
   const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
   const goalUSD = 20000;
 
-  const splash = document.getElementById("splash");
+  // Splash → Main
+  setTimeout(() => {
+    const splash = document.getElementById("splash");
+    const main = document.getElementById("main-content");
+    splash.classList.add("hidden");
+    main.classList.remove("hidden");
+    document.body.classList.add("loaded");
+  }, 4000);
 
   // QR Code
   new QRious({
@@ -15,12 +22,6 @@ window.addEventListener("load", () => {
     background: 'white',
     foreground: '#8000ff'
   });
-
-  // Splash Timeout + scroll unlock
-  setTimeout(() => {
-    splash.classList.add("hidden");
-    document.body.classList.add("loaded");
-  }, 4000);
 
   async function fetchSolPrice() {
     try {
@@ -63,14 +64,14 @@ window.addEventListener("load", () => {
   }
 
   async function updateTracker() {
-    const [wallet, solPrice, purpePrice] = await Promise.all([
+    const [wallet, solPrice, purpePriceUSD] = await Promise.all([
       fetchWalletBalances(),
       fetchSolPrice(),
       fetchPurpePriceUSD()
     ]);
 
     const solUSD = wallet.solBalance * solPrice;
-    const purpeUSD = wallet.purpeBalance * purpePrice;
+    const purpeUSD = wallet.purpeBalance * purpePriceUSD;
     const totalUSD = solUSD + purpeUSD;
 
     updateProgress(totalUSD);
@@ -80,11 +81,7 @@ window.addEventListener("load", () => {
       `Last update: ${now.toLocaleTimeString("en-US", { hour12: false })}`;
   }
 
-  // Tracker Start
-  updateTracker();
-  setInterval(updateTracker, 30000);
-
-  // Donate Buttons
+  // Donate buttons
   document.getElementById("donate-sol").addEventListener("click", () => {
     window.location.href = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation&message=Thanks%20for%20supporting!`;
   });
@@ -93,13 +90,13 @@ window.addEventListener("load", () => {
     window.location.href = `solana:${walletAddress}?amount=3000000&spl-token=${PURPE_MINT}&label=Purple%20Pepe%20Donation&message=Thanks%20for%20your%20PURPE%20support!`;
   });
 
-  // Copy Wallet
+  // Copy wallet address
   document.getElementById("copy-button").addEventListener("click", () => {
     const addr = document.getElementById("wallet-address").textContent.trim();
     navigator.clipboard.writeText(addr).then(() => alert("Wallet address copied!"));
   });
 
-  // Radio
+  // Radio switch
   const audio = document.getElementById("pepe-radio");
   const stations = document.querySelectorAll(".radio-station");
 
@@ -107,13 +104,15 @@ window.addEventListener("load", () => {
     station.addEventListener("click", () => {
       stations.forEach(s => s.classList.remove("active"));
       station.classList.add("active");
-      const src = station.getAttribute("data-src");
       audio.pause();
-      audio.src = src;
+      audio.src = station.getAttribute("data-src");
       audio.load();
       audio.play().catch(() => {});
     });
   });
 
   stations[0].classList.add("active");
+
+  updateTracker();
+  setInterval(updateTracker, 30000);
 });
