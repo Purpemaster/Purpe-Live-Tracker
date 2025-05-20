@@ -1,12 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
   const walletAddress = "9uo3TB4a8synap9VMNpby6nzmnMs9xJWmgo2YKJHZWVn";
   const heliusApiKey = "9cf905ed-105d-46a7-b7fa-7440388b6e9f";
-
   const PURPE_MINT = "HBoNJ5v8g71s2boRivrHnfSB5MVPLDHHyVjruPfhGkvL";
   const RAYDIUM_POOL = "CpoYFgaNA6MJRuJSGeXu9mPdghmtwd5RvYesgej4Zofj";
-
   const goalUSD1 = 20000;
-  const goalUSD2 = 40000;
+
+  // Splash entfernen
+  setTimeout(() => {
+    document.getElementById('splash')?.remove();
+  }, 3000);
 
   // QR-Code generieren
   new QRious({
@@ -17,16 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
     foreground: '#8000ff'
   });
 
-  // Splash-Screen ausblenden
-  setTimeout(() => {
-    const splash = document.getElementById('splash');
-    if (splash) splash.style.display = 'none';
-  }, 3000);
-
   // Preis-APIs
   async function fetchSolPrice() {
     try {
-      const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd", { cache: "no-cache" });
+      const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
       const data = await res.json();
       return data.solana.usd || 0;
     } catch (err) {
@@ -37,9 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchPurpePriceUSD() {
     try {
-      const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${RAYDIUM_POOL}`, {
-        cache: "no-cache"
-      });
+      const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${RAYDIUM_POOL}`);
       const data = await res.json();
       return parseFloat(data.data.attributes.base_token_price_usd);
     } catch (err) {
@@ -68,8 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fortschrittsbalken aktualisieren
   function updateProgress(totalUSD) {
-    const percent1 = Math.min((totalUSD / goalUSD1) * 100, 100);
-    document.getElementById("progress-fill-1").style.width = `${percent1}%`;
+    const percent = Math.min((totalUSD / goalUSD1) * 100, 100);
+    document.getElementById("progress-fill-1").style.width = `${percent}%`;
     document.getElementById("current-amount").textContent = `$${totalUSD.toFixed(2)}`;
   }
 
@@ -83,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ]);
 
       if (!wallet || !solPrice || !purpePriceUSD) {
-        console.error("Fehler bei Daten.");
         document.getElementById("current-amount").textContent = "---";
         return;
       }
@@ -95,14 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
       updateProgress(totalUSD);
 
       const now = new Date();
-      const formatted = now.toLocaleTimeString([], {
+      const formatted = now.toLocaleTimeString("de-DE", {
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
-        timeZoneName: "short"
+        second: "2-digit"
       });
 
-      document.getElementById("last-updated").textContent = `Latest Update: ${formatted}`;
+      document.getElementById("last-updated").textContent = `Latest Update: ${formatted} MESZ`;
     } catch (err) {
       console.error("Fehler beim Update:", err);
       document.getElementById("current-amount").textContent = "---";
@@ -110,38 +102,42 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Spendenbuttons
-  function setupDonationButtons() {
-    document.getElementById("donate-sol").addEventListener("click", () => {
-      const solanaPayLink = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation&message=Thanks%20for%20supporting!`;
-      window.location.href = solanaPayLink;
-    });
+  document.getElementById("donate-sol").addEventListener("click", () => {
+    const link = `solana:${walletAddress}?amount=1&label=Purple%20Pepe%20Donation&message=Thanks%20for%20supporting!`;
+    window.location.href = link;
+  });
 
-    document.getElementById("donate-purpe").addEventListener("click", () => {
-      const purpeAmount = 3_000_000;
-      const purpePayLink = `solana:${walletAddress}?amount=${purpeAmount}&spl-token=${PURPE_MINT}&label=Purple%20Pepe%20Donation&message=Thanks%20for%20your%20PURPE%20support!`;
-      window.location.href = purpePayLink;
-    });
-  }
+  document.getElementById("donate-purpe").addEventListener("click", () => {
+    const link = `solana:${walletAddress}?amount=3000000&spl-token=${PURPE_MINT}&label=Purple%20Pepe%20Donation&message=Thanks%20for%20your%20PURPE%20support!`;
+    window.location.href = link;
+  });
 
   // Wallet-Adresse kopieren
-  function setupCopyButton() {
-    const copyBtn = document.getElementById("copy-button");
-    const addressText = document.getElementById("wallet-address").textContent.trim();
+  document.getElementById("copy-button").addEventListener("click", () => {
+    const addr = document.getElementById("wallet-address").textContent.trim();
+    navigator.clipboard.writeText(addr).then(() => alert("Wallet address copied!"));
+  });
 
-    if (copyBtn) {
-      copyBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(addressText).then(() => {
-          alert("Wallet address copied!");
-        }).catch(() => {
-          alert("Copy failed.");
-        });
-      });
-    }
-  }
+  // Radio Umschalten
+  const stations = document.querySelectorAll(".radio-station");
+  const audio = document.getElementById("pepe-radio");
 
-  // Starten nach DOM ready
+  stations.forEach(station => {
+    station.addEventListener("click", () => {
+      stations.forEach(s => s.classList.remove("active"));
+      station.classList.add("active");
+
+      const src = station.getAttribute("data-src");
+      audio.pause();
+      audio.src = src;
+      audio.load();
+      audio.play().catch(err => console.warn("Autoplay blockiert", err));
+    });
+  });
+
+  stations[0].classList.add("active");
+
+  // Initialisierung
   updateTracker();
   setInterval(updateTracker, 30000);
-  setupDonationButtons();
-  setupCopyButton();
 });
