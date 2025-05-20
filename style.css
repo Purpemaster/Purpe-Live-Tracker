@@ -40,7 +40,6 @@ body {
   gap: 20px;
 }
 
-/* Pulsierende Überschrift */
 .title {
   font-size: 3.2rem;
   font-weight: bold;
@@ -74,7 +73,6 @@ body {
   }
 }
 
-/* Fortschrittsbalken */
 .progress-bar {
   width: 100%;
   height: 24px;
@@ -102,51 +100,97 @@ body {
   }
 }
 
-/* Beträge */
-.amounts {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 0 4px #000;
+.glow-box {
+  margin: 10px auto;
+  background: #24002e;
+  border-radius: 10px;
+  padding: 10px 20px;
+  width: fit-content;
+  box-shadow: 0 0 12px #ff00ff;
 }
 
-/* Info-Box */
-.info-box {
-  width: 100%;
+.qr-section {
   margin-top: 30px;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 18px;
-  padding: 22px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+}
+
+.wallet-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.donate-buttons {
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.donate-button {
+  background: #6b00b6;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 0 10px #a900ff;
+}
+
+.radio-grid {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 440px;
+  margin: 40px auto;
 }
 
-.info-box p {
-  font-size: 1.15rem;
-  line-height: 1.6;
-  margin-bottom: 10px;
-  color: white;
-  text-shadow: 0 0 2px black;
+.radio-station {
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #6b00b6, #a900ff);
+  border-radius: 14px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 0 12px #a900ff;
+  text-align: center;
+  width: 100%;
 }
 
-/* Responsive */
+.radio-station span {
+  display: block;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.radio-station:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 18px #ff00ff;
+}
+
+.radio-station.active {
+  background: linear-gradient(135deg, #ff00ff, #9900cc);
+  box-shadow: 0 0 25px #ff00ff;
+}
+
+audio {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 0 12px #6b00b6;
+  border-radius: 8px;
+}
+
 @media screen and (max-width: 768px) {
   .title {
     font-size: 2.5rem;
-  }
-
-  .amounts {
-    font-size: 1.1rem;
-  }
-
-  .info-box p {
-    font-size: 1rem;
   }
 
   .progress-bar {
